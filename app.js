@@ -344,90 +344,60 @@ function renderAdmin(){
   ex.innerHTML = thead(['Category','Detail','Amount']) +
     (DATA.expensesAug[t]||[]).map(r=>tr([r[0], r[1], fmt(r[2])+'₫'])).join('');
 
-  // Policies
-  const pl = document.getElementById('policy-list');
-  pl.innerHTML = DATA.policies.map(p=>`<li>${p}</li>`).join('');
-
-}
-
-function renderTeacher(){
-  // Lấy thông tin giáo viên, lớp, học sinh
-  const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
-  const email = localStorage.getItem('active_email') || '';
-  const classes = (DATA.classes[t]||[]);
-  const myClass = classes.find(c=>c.teacher?.email===email) || classes[0];
-  const students = (DATA.students[t]||[]).filter(s=>s.class===myClass.code);
-  // Card 1: tên lớp, tổng sĩ số, nam, nữ
-  const total = students.length;
-  const male = students.filter(s=>s.gender==='male').length;
-  const female = students.filter(s=>s.gender==='female').length;
-  // Card 2: tổng status học phí bé của lớp
-  const invoices = (DATA.invoicesAug[t]||[]).filter(i=>i[2]===myClass.code);
-  const paid = invoices.filter(i=>i[3]%2===0).length;
-  const unpaid = invoices.length - paid;
-  // Card 3: thời khoá biểu/lịch ăn uống
+  // Lấy giáo viên chủ nhiệm
+  const classInfo = (DATA.classes[t]||[]).find(c=>c.code===myChild.class);
+  const teacher = classInfo?.name || 'N/A';
+  // Lấy giáo viên chủ nhiệm
+  const classInfo = (DATA.classes[t]||[]).find(c=>c.code===myChild.class);
+  const teacher = classInfo?.teacher?.name || 'N/A';
+  // Lấy giáo viên chủ nhiệm
+  const classInfo = (DATA.classes[t]||[]).find(c=>c.code===myChild.class);
+  const teacher = classInfo?.teacher?.name || 'N/A';
+  // Tuổi làm tròn
+  const dob = new Date(myChild.dob);
+  const now = new Date('2025-08-01');
+  const ageMonths = (now.getFullYear()-dob.getFullYear())*12 + (now.getMonth()-dob.getMonth());
+  const age = Math.round(ageMonths/12);
+  // Sức khoẻ & BMI
+  let healths = (DATA.healthAug||[]).filter(r=>r[0]===myChild.id);
+  let h8 = healths.length ? {date:'08/2025', height:parseFloat(healths[0][1]), weight:parseFloat(healths[0][2]), bmi:parseFloat(healths[0][3])} : {date:'08/2025', height:110, weight:17, bmi:15.0};
+  const refBMI = myChild.gender==='male' ? 15.5 : 15.2;
+  // Lịch học tuần mẫu
   const schedule = [
-    {time:'7:30', activity:'Đón trẻ, ăn sáng'},
-    {time:'8:30', activity:'Học Toán/Văn/Anh'},
-    {time:'10:00', activity:'Chơi ngoài trời'},
-    {time:'11:00', activity:'Ăn trưa, nghỉ trưa'},
-    {time:'14:00', activity:'Học kỹ năng, vẽ'},
-    {time:'15:00', activity:'Ăn xế, chơi tự do'},
-    {time:'16:00', activity:'Trả trẻ'}
+    {day:'Thứ 2',subject:'Toán, Vẽ'},
+    {day:'Thứ 3',subject:'Văn, Âm nhạc'},
+    {day:'Thứ 4',subject:'Tiếng Anh, Thể dục'},
+    {day:'Thứ 5',subject:'Khoa học, Vẽ'},
+    {day:'Thứ 6',subject:'Kỹ năng sống, Âm nhạc'}
   ];
-  // Card 4: điểm danh
-  // Giả lập: bé có "Absent" là nghỉ, còn lại là đi học
-  const attData = (DATA.attendanceSummaryAug||[]).filter(r=>r[1]===myClass.code);
-  let present = 0, absent = 0;
-  students.forEach(s => {
-    const att = attData.find(a=>a[0]===s.id);
-    if(att && att[2].includes('Absent')) absent++;
-    else present++;
-  });
-  // Card 5: nhận xét & ghi chú từ admin
-  const notes = [
-    {date:'2025-08-01',note:'Lưu ý: kiểm tra sức khoẻ các bé đầu tháng.'},
-    {date:'2025-08-15',note:'Tổ chức hoạt động ngoài trời.'}
-  ];
-  // Render card view
-  const container = document.querySelector('main.container');
-  container.innerHTML = `
-    <h1>Dashboard Giáo viên</h1>
+  const todayIdx = (new Date()).getDay()-1;
+  // Học phí tháng hiện tại
+  const invoice = (DATA.invoicesAug[t]||[]).find(r=>r[0]===myChild.id);
+  dash.innerHTML = `
     <div class="card" style="margin-bottom:16px">
-      <b>Lớp: ${myClass.name} (${myClass.code})</b><br>
-      Tổng sĩ số: <b>${total}</b> | Nam: <b>${male}</b> | Nữ: <b>${female}</b>
+      <div style="font-size:20px;font-weight:700">${myChild.name}</div>
+      <div>Lớp: <b>${myChild.class}</b> | Tuổi: <b>${age}</b></div>
+      <div>Giáo viên chủ nhiệm: <b>${teacher}</b></div>
     </div>
     <div class="card" style="margin-bottom:16px">
-      <b>Học phí tháng 8/2025</b><br>
-      Đã đóng: <b>${paid}</b> bé | Chưa đóng: <b>${unpaid}</b> bé
+      <div style="font-weight:600">Sức khoẻ & BMI tháng 8/2025</div>
+      <div>Cân nặng: <b>${h8.weight} kg</b> | Chiều cao: <b>${h8.height} cm</b> | BMI: <b>${h8.bmi}</b></div>
+      <div style="margin:8px 0 4px 0">BMI chuẩn: <b>${refBMI}</b> &nbsp; <span class="badge ${h8.bmi<refBMI?'bad':'ok'}">${h8.bmi<refBMI?'Thấp hơn chuẩn':'Bình thường'}</span></div>
+      <div style="font-size:13px;color:#888">* BMI = cân nặng (kg) / (chiều cao (m))²</div>
     </div>
     <div class="card" style="margin-bottom:16px">
-      <b>Thời khoá biểu & lịch ăn uống</b>
+      <div style="font-weight:600">Lịch học tuần này</div>
       <table class="table" style="width:100%;margin-top:8px">
-        <tr><th>Thời gian</th><th>Hoạt động</th></tr>
-        ${schedule.map(s=>`<tr><td>${s.time}</td><td>${s.activity}</td></tr>`).join('')}
+        <tr>${schedule.map(s=>`<th>${s.day}</th>`).join('')}</tr>
+        <tr>${schedule.map((s,i)=>`<td style="${i===todayIdx?'background:#e3f2fd':''}">${s.subject}<br><span style='font-size:11px;color:#888'>Ăn sáng: 7:30<br>Ăn trưa: 11:00<br>Ăn xế: 15:00</span></td>`).join('')}</tr>
       </table>
-    </div>
-    <div class="card" style="margin-bottom:16px">
-      <b>Điểm danh hôm nay (${new Date().toLocaleDateString('vi-VN')})</b><br>
-      <div style="margin:8px 0">
-        <b>Đi học:</b> ${present} bé &nbsp; <b>Nghỉ:</b> ${absent} bé
-      </div>
-      <button class="primary" style="margin-right:8px" onclick="alert('Cập nhật điểm danh thành công!')">Cập nhật điểm danh</button>
-      <button class="primary" onclick="alert('Cập nhật sức khoẻ thành công!')">Cập nhật Sức khoẻ</button>
+      <div style="font-size:12px;color:#888">* Hôm nay: ${schedule[todayIdx]?.subject||''}</div>
     </div>
     <div class="card">
-      <b>Nhận xét & ghi chú từ admin</b>
-      <ul>${notes.map(n=>`<li>${n.date}: ${n.note}</li>`).join('')}</ul>
+      <div style="font-weight:600">Học phí tháng 8/2025</div>
+      <div>Số tiền: <b>${invoice?fmt(invoice[3])+'₫':'N/A'}</b> | Trạng thái: <span class="badge ${invoice&&invoice[3]%2===0?'ok':'bad'}">${invoice?(invoice[3]%2===0?'Đã thanh toán':'Chưa thanh toán'):'N/A'}</span></div>
     </div>
   `;
-}
-
-function renderAdmin(){
-  // Determine tenant for this admin
-  const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
-  const tenantKpis = document.getElementById('tenant-kpis');
-  const classes = DATA.classes[t]||[];
   const students = DATA.students[t]||[];
   const teachers = classes.map(c=>c.teacher).filter(Boolean);
   const studentsByClass = classes.map(c=>`<div>Lớp ${c.code}: <b>${students.filter(s=>s.class===c.code).length}</b></div>`).join('');
