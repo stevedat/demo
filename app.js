@@ -343,6 +343,30 @@ function renderTeacher(){
 }
 
 function renderParent(){
+  // === Card: Tổng quan trường ===
+  const allClasses = DATA.classes[t]||[];
+  const allStudents = DATA.students[t]||[];
+  const classCounts = allClasses.map(c=>({code:c.code, name:c.name, count:allStudents.filter(s=>s.class===c.code).length}));
+  // === Card: Thu-Chi ===
+  const allInvoices = DATA.invoicesAug[t]||[];
+  const totalFee = allInvoices.reduce((a,b)=>a+b[3],0);
+  const feeByClass = allClasses.map(c=>({code:c.code, name:c.name, total:allInvoices.filter(i=>i[2]===c.code).reduce((a,b)=>a+b[3],0)}));
+  const unpaid = allInvoices.filter(i=>i[3]%2!==0).reduce((a,b)=>a+b[3],0);
+  // === Card: Chi tháng ===
+  const allExp = DATA.expensesAug[t]||[];
+  const totalExp = allExp.reduce((a,b)=>a+b[2],0);
+  const teacherExp = allExp.find(e=>e[0]==='StaffCost')?.[2]||0;
+  const subjectExp = allExp.filter(e=>e[0]==='TeachingMaterial'||e[0]==='Language'||e[0]==='Talent').reduce((a,b)=>a+b[2],0);
+  // === Card: Chi phí thức ăn, giáo cụ ===
+  const foodExp = allExp.find(e=>e[0]==='Food')?.[2]||0;
+  const materialExp = allExp.find(e=>e[0]==='TeachingMaterial')?.[2]||0;
+  // === Card: Lịch hoạt động ===
+  const events = [
+    {date:'2025-09-15', title:'Vui hội trăng rằm', scope:'school'},
+    {date:'2025-09-20', title:'Tham quan bảo tàng', scope:'class', class:'KGA'},
+    {date:'2025-09-22', title:'Ngày hội thể thao', scope:'school'},
+    {date:'2025-09-25', title:'Lớp Rainbow A: Vẽ tranh', scope:'class', class:'R1'}
+  ];
   const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
   const parentEmail = localStorage.getItem('active_email') || '';
   // Find student for this parent
@@ -356,17 +380,17 @@ function renderParent(){
   // Lấy giáo viên chủ nhiệm
   const classInfo = (DATA.classes[t]||[]).find(c=>c.code===myChild.class);
   const teacher = classInfo?.teacher;
-  // BMI/health data 2 tháng gần nhất (giả lập 07/2025 và 08/2025)
-  const healths = (DATA.healthAug||[]).filter(r=>r[0]===myChild.id);
-  // Giả lập thêm dữ liệu tháng 07/2025 nếu chưa có
-  const healthHistory = [
-    {date:'07/2025', height:myChild.gender==='male'?110:109, weight:myChild.gender==='male'?17.5:17.0, bmi:myChild.gender==='male'?14.5:14.3},
-    ...healths.map(r=>({date:'08/2025', height:parseFloat(r[1]), weight:parseFloat(r[2]), bmi:parseFloat(r[3])}))
-  ];
-  // Tuổi
+  // BMI/health data 2 tháng gần nhất (giả lập 07/2025 và 08/2025, luôn đủ dữ liệu)
+  let healths = (DATA.healthAug||[]).filter(r=>r[0]===myChild.id);
+  // Đảm bảo luôn có 2 tháng
+  let h7 = {date:'07/2025', height:myChild.gender==='male'?110:109, weight:myChild.gender==='male'?17.5:17.0, bmi:myChild.gender==='male'?14.5:14.3};
+  let h8 = healths.length ? {date:'08/2025', height:parseFloat(healths[0][1]), weight:parseFloat(healths[0][2]), bmi:parseFloat(healths[0][3])} : {date:'08/2025', height:h7.height+2, weight:h7.weight+0.5, bmi:((h7.weight+0.5)/(((h7.height+2)/100)**2)).toFixed(1)};
+  const healthHistory = [h7, h8];
+  // Tuổi làm tròn
   const dob = new Date(myChild.dob);
   const now = new Date('2025-08-01');
   const ageMonths = (now.getFullYear()-dob.getFullYear())*12 + (now.getMonth()-dob.getMonth());
+  const age = Math.round(ageMonths/12);
   // BMI chuẩn mẫu
   const refBMI = myChild.gender==='male' ? 15.5 : 15.2;
   // Lịch học tuần mẫu
@@ -383,35 +407,59 @@ function renderParent(){
   const invoice = (DATA.invoicesAug[t]||[]).find(r=>r[0]===myChild.id);
   dash.innerHTML = `
     <div class="card" style="margin-bottom:16px">
+      <div style="font-weight:600">Tổng quan trường</div>
+      <div>Tổng số lớp: <b>${allClasses.length}</b> | Tổng học sinh: <b>${allStudents.length}</b></div>
+      <div>Học sinh theo lớp: ${classCounts.map(c=>`${c.name}: <b>${c.count}</b>`).join(' | ')}</div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-weight:600">Thu - Chi</div>
+      <div>Tổng thu học phí: <b>${fmt(totalFee)}₫</b></div>
+      <div>Thu theo lớp: ${feeByClass.map(c=>`${c.name}: <b>${fmt(c.total)}₫</b>`).join(' | ')}</div>
+      <div>Học phí còn chưa thu: <b>${fmt(unpaid)}₫</b></div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-weight:600">Chi tháng 8/2025</div>
+      <div>Tổng chi: <b>${fmt(totalExp)}₫</b></div>
+      <div>Chi giáo viên: <b>${fmt(teacherExp)}₫</b></div>
+      <div>Chi các môn học: <b>${fmt(subjectExp)}₫</b></div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-weight:600">Chi phí thức ăn & giáo cụ</div>
+      <div>Thức ăn: <b>${fmt(foodExp)}₫</b> | Giáo cụ & học liệu: <b>${fmt(materialExp)}₫</b></div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-weight:600">Lịch hoạt động sắp tới</div>
+      <ul style="margin:8px 0 0 16px;padding:0">
+        ${events.filter(e=>e.scope==='school'||e.class===myChild.class).map(e=>`<li>${e.date}: ${e.title}${e.scope==='class'?` (${e.class})`:''}</li>`).join('')}
+      </ul>
+    </div>
+    <div class="card" style="margin-bottom:16px">
       <div style="font-size:20px;font-weight:700">${myChild.name}</div>
-      <div>Lớp: <b>${myChild.class}</b> | Tuổi: ${(ageMonths/12).toFixed(1)} năm</div>
+      <div>Lớp: <b>${myChild.class}</b> | Tuổi: <b>${age}</b></div>
       <div>Giáo viên chủ nhiệm: <b>${teacher?.name||'N/A'}</b> <a href="https://zalo.me/" target="_blank" style="margin-left:8px;color:#007bff;text-decoration:underline">Zalo</a></div>
     </div>
     <div class="card" style="margin-bottom:16px">
-      <div style="font-weight:600">Sức khoẻ tháng 8/2025</div>
+      <div style="font-weight:600">Sức khoẻ & biểu đồ tháng gần nhất</div>
       <div>Cân nặng: <b>${healthHistory[1]?.weight||'N/A'} kg</b> | Chiều cao: <b>${healthHistory[1]?.height||'N/A'} cm</b> | BMI: <b>${healthHistory[1]?.bmi||'N/A'}</b></div>
       <div style="margin-top:8px">
         <canvas id="bmiChart" width="320" height="180"></canvas>
       </div>
-      <div style="font-size:12px;color:#888">Đường nét đứt: BMI chuẩn Việt Nam cho ${myChild.gender==='male'?'bé trai':'bé gái'} cùng tuổi</div>
-    </div>
-    <div class="card" style="margin-bottom:16px">
-      <div style="font-weight:600">Biểu đồ chiều cao/cân nặng 2 tháng gần nhất</div>
       <div style="margin-top:8px">
         <canvas id="hwChart" width="320" height="180"></canvas>
       </div>
+      <div style="font-size:12px;color:#888">Đường nét đứt: BMI chuẩn Việt Nam cho ${myChild.gender==='male'?'bé trai':'bé gái'} cùng tuổi</div>
     </div>
     <div class="card" style="margin-bottom:16px">
       <div style="font-weight:600">Lịch học tuần này</div>
       <table class="table" style="width:100%;margin-top:8px">
         <tr>${schedule.map(s=>`<th>${s.day}</th>`).join('')}</tr>
-        <tr>${schedule.map((s,i)=>`<td style="${i===todayIdx?'background:#e3f2fd':''}">${s.subject}</td>`).join('')}</tr>
+        <tr>${schedule.map((s,i)=>`<td style="${i===todayIdx?'background:#e3f2fd':''}">${s.subject}<br><span style='font-size:11px;color:#888'>Ăn sáng: 7:30<br>Ăn trưa: 11:00<br>Ăn xế: 15:00</span></td>`).join('')}</tr>
       </table>
       <div style="font-size:12px;color:#888">* Hôm nay: ${schedule[todayIdx]?.subject||''}</div>
     </div>
     <div class="card">
       <div style="font-weight:600">Học phí tháng 8/2025</div>
-      <div>Số tiền: <b>${invoice?fmt(invoice[3])+'₫':'N/A'}</b> | Trạng thái: <span class="badge ok">Đã tạo</span></div>
+      <div>Số tiền: <b>${invoice?fmt(invoice[3])+'₫':'N/A'}</b> | Trạng thái: <span class="badge ${invoice&&invoice[3]%2===0?'ok':'bad'}">${invoice?(invoice[3]%2===0?'Đã thanh toán':'Chưa thanh toán'):'N/A'}</span></div>
     </div>
   `;
   // Vẽ biểu đồ BMI
