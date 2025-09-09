@@ -1,3 +1,4 @@
+const qs = (k)=>new URLSearchParams(location.search).get(k);
 // Helper: render fixed child card for parent
 function renderParentChildCard(containerId) {
   const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
@@ -173,7 +174,7 @@ const STR = {
   }
 };
 
-const qs = (k)=>new URLSearchParams(location.search).get(k);
+
 const fmt = (n)=>n.toLocaleString('vi-VN');
 const uid = ()=>'S'+Math.random().toString(36).slice(2,8).toUpperCase();
 
