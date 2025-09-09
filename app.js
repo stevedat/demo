@@ -237,16 +237,39 @@ function showAccountInfo() {
 
 function renderPlatform(){
   const kpis = document.getElementById('platform-kpis');
-  kpis.innerHTML = DATA.tenants.map(t => cardKPI(t.name, [
-    ["Students", t.students],
-    ["Revenue Aug", fmt(t.revenue)+"₫"],
-    ["Expense Aug", fmt(t.expense)+"₫"],
-    ["State", t.state]
-  ])).join('');
+  // Card trường: tổng số lớp, tổng số học sinh, học sinh theo lớp, tổng số giáo viên
+  kpis.innerHTML = DATA.tenants.map(t => {
+    const classes = DATA.classes[t.code]||[];
+    const students = DATA.students[t.code]||[];
+    const teachers = classes.map(c=>c.teacher).filter(Boolean);
+    const studentsByClass = classes.map(c=>`<div>Lớp ${c.code}: <b>${students.filter(s=>s.class===c.code).length}</b></div>`).join('');
+    return `<div class="card"><b>${t.name}</b><br>
+      Tổng số lớp: <b>${classes.length}</b><br>
+      Tổng số học sinh: <b>${students.length}</b><br>
+      ${studentsByClass}
+      Tổng số giáo viên: <b>${teachers.length}</b>
+    </div>`;
+  }).join('');
 
+  // Card tenants: chỉ tên, State (có thể đổi), Admin tenant
   const table = document.getElementById('tenant-table');
-  table.innerHTML = thead(['Tenant','State','Students','Revenue Aug','Expense Aug']) +
-    DATA.tenants.map(t => tr([t.name, badgeState(t.state), t.students, fmt(t.revenue)+'₫', fmt(t.expense)+'₫'])).join('');
+  table.innerHTML = thead(['Tenant','State','Admin']) +
+    DATA.tenants.map(t =>
+      tr([
+        t.name,
+        `<select onchange="window.updateTenantState&&window.updateTenantState('${t.code}',this.value)">
+          <option value="active"${t.state==='active'?' selected':''}>Active</option>
+          <option value="pending"${t.state==='pending'?' selected':''}>Pending</option>
+          <option value="inactive"${t.state==='inactive'?' selected':''}>Inactive</option>
+        </select>`,
+        t.admin?.name||''
+      ])
+    ).join('');
+  // Hàm đổi trạng thái state
+  window.updateTenantState = (code, state) => {
+    const ten = DATA.tenants.find(x=>x.code===code);
+    if(ten) ten.state = state;
+  };
 }
 
 function renderAdmin(){
@@ -316,17 +339,66 @@ function renderAdmin(){
 }
 
 function renderTeacher(){
-  const att = document.getElementById('attendance-table');
-  att.innerHTML = thead(['ID','Class','Summary']) +
-    DATA.attendanceSummaryAug.map(r=>tr([r[0], r[1], r[2]])).join('');
-
-  const ht = document.getElementById('health-table');
-  ht.innerHTML = thead(['ID','Height','Weight','BMI']) +
-    DATA.healthAug.map(r=>tr([r[0], r[1], r[2], r[3]])).join('');
-
-  const sk = document.getElementById('skills-table');
-  sk.innerHTML = thead(['ID','Skill','Score','Comment']) +
-    DATA.skillsAug.map(r=>tr([r[0], r[1], r[2], r[3]])).join('');
+  // Lấy thông tin giáo viên, lớp, học sinh
+  const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
+  const email = localStorage.getItem('active_email') || '';
+  const classes = (DATA.classes[t]||[]);
+  const myClass = classes.find(c=>c.teacher?.email===email) || classes[0];
+  const students = (DATA.students[t]||[]).filter(s=>s.class===myClass.code);
+  // Card 1: tên lớp, tổng sĩ số, nam, nữ
+  const total = students.length;
+  const male = students.filter(s=>s.gender==='male').length;
+  const female = students.filter(s=>s.gender==='female').length;
+  // Card 2: tổng status học phí bé của lớp
+  const invoices = (DATA.invoicesAug[t]||[]).filter(i=>i[2]===myClass.code);
+  const paid = invoices.filter(i=>i[3]%2===0).length;
+  const unpaid = invoices.length - paid;
+  // Card 3: thời khoá biểu/lịch ăn uống
+  const schedule = [
+    {time:'7:30', activity:'Đón trẻ, ăn sáng'},
+    {time:'8:30', activity:'Học Toán/Văn/Anh'},
+    {time:'10:00', activity:'Chơi ngoài trời'},
+    {time:'11:00', activity:'Ăn trưa, nghỉ trưa'},
+    {time:'14:00', activity:'Học kỹ năng, vẽ'},
+    {time:'15:00', activity:'Ăn xế, chơi tự do'},
+    {time:'16:00', activity:'Trả trẻ'}
+  ];
+  // Card 4: điểm danh
+  const attData = (DATA.attendanceSummaryAug||[]).filter(r=>r[1]===myClass.code);
+  // Card 5: nhận xét & ghi chú từ admin
+  const notes = [
+    {date:'2025-08-01',note:'Lưu ý: kiểm tra sức khoẻ các bé đầu tháng.'},
+    {date:'2025-08-15',note:'Tổ chức hoạt động ngoài trời.'}
+  ];
+  // Render card view
+  const container = document.querySelector('main.container');
+  container.innerHTML = `
+    <h1>Dashboard Giáo viên</h1>
+    <div class="card" style="margin-bottom:16px">
+      <b>Lớp: ${myClass.name} (${myClass.code})</b><br>
+      Tổng sĩ số: <b>${total}</b> | Nam: <b>${male}</b> | Nữ: <b>${female}</b>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <b>Học phí tháng 8/2025</b><br>
+      Đã đóng: <b>${paid}</b> bé | Chưa đóng: <b>${unpaid}</b> bé
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <b>Thời khoá biểu & lịch ăn uống</b>
+      <table class="table" style="width:100%;margin-top:8px">
+        <tr><th>Thời gian</th><th>Hoạt động</th></tr>
+        ${schedule.map(s=>`<tr><td>${s.time}</td><td>${s.activity}</td></tr>`).join('')}
+      </table>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <b>Điểm danh tháng 8/2025</b>
+      <ul>${attData.map(a=>`<li>${a[0]}: ${a[2]}</li>`).join('')}</ul>
+      <button class="primary" onclick="alert('Cập nhật điểm danh thành công!')">Cập nhật điểm danh</button>
+    </div>
+    <div class="card">
+      <b>Nhận xét & ghi chú từ admin</b>
+      <ul>${notes.map(n=>`<li>${n.date}: ${n.note}</li>`).join('')}</ul>
+    </div>
+  `;
 }
 
 function renderParent(){
