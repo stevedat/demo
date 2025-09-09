@@ -54,23 +54,18 @@ const DATA = {
   },
   students: {
     sunshine:[
-      {id:"S1",name:"Nguyen Gia Bao",class:"KGA",parent:{id:"P1",name:"Pham Parent 1",email:"parent1.sunshine@example.com"}},
-      {id:"S2",name:"Tran My An",class:"KGA",parent:{id:"P2",name:"Tran Parent 2",email:"parent2.sunshine@example.com"}},
-      {id:"S3",name:"Le Quang Huy",class:"KGA",parent:{id:"P3",name:"Le Parent 3",email:"parent3.sunshine@example.com"}},
-      {id:"S4",name:"Pham Minh Chau",class:"KGB",parent:{id:"P4",name:"Pham Parent 4",email:"parent4.sunshine@example.com"}},
-      {id:"S5",name:"Do Bao Han",class:"KGB",parent:{id:"P5",name:"Do Parent 5",email:"parent5.sunshine@example.com"}},
-      {id:"S6",name:"Nguyen Nhat Nam",class:"KGB",parent:{id:"P6",name:"Nguyen Parent 6",email:"parent6.sunshine@example.com"}},
-      {id:"S7",name:"Hoang Quynh",class:"KGB",parent:{id:"P7",name:"Hoang Parent 7",email:"parent7.sunshine@example.com"}},
-      {id:"S8",name:"Vo Thanh Long",class:"KGB",parent:{id:"P8",name:"Vo Parent 8",email:"parent8.sunshine@example.com"}},
-      {id:"S9",name:"Phan Bao Tram",class:"KGB",parent:{id:"P9",name:"Phan Parent 9",email:"parent9.sunshine@example.com"}},
-      {id:"S10",name:"Dang Gia Han",class:"KGB",parent:{id:"P10",name:"Dang Parent 10",email:"parent10.sunshine@example.com"}}
+      {id:"S1",name:"Nguyen Gia Bao",class:"KGA",gender:"male",dob:"2019-03-15",parent:{id:"P1",name:"Pham Van Binh",email:"binh.parent.sunshine@example.com"}},
+      {id:"S2",name:"Tran My An",class:"KGA",gender:"female",dob:"2019-07-22",parent:{id:"P2",name:"Tran Thi Lan",email:"lan.parent.sunshine@example.com"}},
+      {id:"S3",name:"Le Quang Huy",class:"KGA",gender:"male",dob:"2018-11-05",parent:{id:"P3",name:"Le Van Son",email:"son.parent.sunshine@example.com"}},
+      {id:"S4",name:"Pham Minh Chau",class:"KGB",gender:"female",dob:"2019-01-30",parent:{id:"P4",name:"Pham Thi Dao",email:"dao.parent.sunshine@example.com"}},
+      {id:"S5",name:"Do Bao Han",class:"KGB",gender:"female",dob:"2018-09-18",parent:{id:"P5",name:"Do Van Hieu",email:"hieu.parent.sunshine@example.com"}}
     ],
     rainbow:[
-      {id:"R1S1",name:"Nguyen Minh Khoa",class:"R1",parent:{id:"RP1",name:"Nguyen Parent 1",email:"parent1.rainbow@example.com"}},
-      {id:"R1S2",name:"Tran Bao Chau",class:"R1",parent:{id:"RP2",name:"Tran Parent 2",email:"parent2.rainbow@example.com"}},
-      {id:"R2S1",name:"Le Quoc Duy",class:"R2",parent:{id:"RP3",name:"Le Parent 3",email:"parent3.rainbow@example.com"}},
-      {id:"R2S2",name:"Pham Minh Anh",class:"R2",parent:{id:"RP4",name:"Pham Parent 4",email:"parent4.rainbow@example.com"}},
-      {id:"R2S3",name:"Do Bao Linh",class:"R2",parent:{id:"RP5",name:"Do Parent 5",email:"parent5.rainbow@example.com"}}
+      {id:"R1S1",name:"Nguyen Minh Khoa",class:"R1",gender:"male",dob:"2019-04-10",parent:{id:"RP1",name:"Nguyen Van Cuong",email:"cuong.parent.rainbow@example.com"}},
+      {id:"R1S2",name:"Tran Bao Chau",class:"R1",gender:"female",dob:"2019-08-12",parent:{id:"RP2",name:"Tran Thi Mai",email:"mai.parent.rainbow@example.com"}},
+      {id:"R2S1",name:"Le Quoc Duy",class:"R2",gender:"male",dob:"2018-12-01",parent:{id:"RP3",name:"Le Van Tien",email:"tien.parent.rainbow@example.com"}},
+      {id:"R2S2",name:"Pham Minh Anh",class:"R2",gender:"female",dob:"2019-02-25",parent:{id:"RP4",name:"Pham Thi Hoa",email:"hoa.parent.rainbow@example.com"}},
+      {id:"R2S3",name:"Do Bao Linh",class:"R2",gender:"female",dob:"2018-10-20",parent:{id:"RP5",name:"Do Van Phuc",email:"phuc.parent.rainbow@example.com"}}
     ]
   },
   invoicesAug: {
@@ -96,10 +91,18 @@ const DATA = {
   ],
   parentChildren: {
     sunshine:[
-      ["S1","Nguyen Gia Bao","KGA","P1"],["S2","Tran My An","KGA","P2"],["S3","Le Quang Huy","KGA","P3"],["S4","Pham Minh Chau","KGB","P4"],["S5","Do Bao Han","KGB","P5"],["S6","Nguyen Nhat Nam","KGB","P6"],["S7","Hoang Quynh","KGB","P7"],["S8","Vo Thanh Long","KGB","P8"],["S9","Phan Bao Tram","KGB","P9"],["S10","Dang Gia Han","KGB","P10"]
+      ["S1","Nguyen Gia Bao","KGA","P1"],
+      ["S2","Tran My An","KGA","P2"],
+      ["S3","Le Quang Huy","KGA","P3"],
+      ["S4","Pham Minh Chau","KGB","P4"],
+      ["S5","Do Bao Han","KGB","P5"]
     ],
     rainbow:[
-      ["R1S1","Nguyen Minh Khoa","R1","RP1"],["R1S2","Tran Bao Chau","R1","RP2"],["R2S1","Le Quoc Duy","R2","RP3"],["R2S2","Pham Minh Anh","R2","RP4"],["R2S3","Do Bao Linh","R2","RP5"]
+      ["R1S1","Nguyen Minh Khoa","R1","RP1"],
+      ["R1S2","Tran Bao Chau","R1","RP2"],
+      ["R2S1","Le Quoc Duy","R2","RP3"],
+      ["R2S2","Pham Minh Anh","R2","RP4"],
+      ["R2S3","Do Bao Linh","R2","RP5"]
     ]
   }
 };
@@ -286,30 +289,70 @@ function renderTeacher(){
 
 function renderParent(){
   const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
-  // Get parent email from login (simulate auth)
   const parentEmail = localStorage.getItem('active_email') || '';
-  // Find parent ID by email
-  let parentId = null;
+  // Find student for this parent
   const students = (DATA.students[t]||[]);
-  for (const s of students) {
-    if (s.parent && s.parent.email === parentEmail) {
-      parentId = s.parent.id;
-      break;
-    }
+  const myChild = students.find(s => s.parent && s.parent.email === parentEmail);
+  const dash = document.getElementById('parent-dashboard');
+  if (!myChild) {
+    dash.innerHTML = '<div style="color:red">Không tìm thấy học sinh cho phụ huynh này.</div>';
+    return;
   }
-  // Only show children for this parent
-  const kids = (DATA.parentChildren[t]||[]).filter(k=>k[3]===parentId);
-  const ct = document.getElementById('children-table');
-  ct.innerHTML = thead(['ID','Name','Class']) + kids.map(r=>tr([r[0], r[1], r[2]])).join('');
-
-  const myIds = new Set(kids.map(k=>k[0]));
-  const inv = document.getElementById('my-invoices-table');
-  const mine = (DATA.invoicesAug[t]||[]).filter(r=>myIds.has(r[0]));
-  inv.innerHTML = thead(['ID','Name','Class','Total']) + mine.map(r=>tr([r[0], r[1], r[2], fmt(r[3])+'₫'])).join('');
-
-  const att = document.getElementById('my-attendance-table');
-  const attAll = DATA.attendanceSummaryAug.filter(r=>myIds.has(r[0]));
-  att.innerHTML = thead(['ID','Class','Summary']) + attAll.map(r=>tr([r[0], r[1], r[2]])).join('');
+  // Find BMI history for this child
+  const bmiData = (DATA.healthAug||[]).filter(r=>r[0]===myChild.id).map(r=>{
+    return {
+      date: '08/2025',
+      height: parseFloat(r[1]),
+      weight: parseFloat(r[2]),
+      bmi: parseFloat(r[3])
+    };
+  });
+  // Calculate age in months for BMI reference
+  const dob = new Date(myChild.dob);
+  const now = new Date('2025-08-01');
+  const ageMonths = (now.getFullYear()-dob.getFullYear())*12 + (now.getMonth()-dob.getMonth());
+  // Placeholder for VN BMI reference (should be replaced with real data)
+  const refBMI = myChild.gender==='male' ? 15.5 : 15.2;
+  dash.innerHTML = `
+    <div class="card">
+      <h2>Dashboard</h2>
+      <div><b>${myChild.name}</b> (${myChild.class})</div>
+      <div>Ngày sinh: ${myChild.dob} (${myChild.gender==='male'?'Nam':'Nữ'})</div>
+      <div>Tuổi: ${(ageMonths/12).toFixed(1)} năm</div>
+      <div style="margin-top:16px">
+        <b>BMI tháng 8/2025:</b> ${bmiData.length?bmiData[0].bmi:'N/A'}
+        <div style="margin-top:8px">
+          <canvas id="bmiChart" width="320" height="180"></canvas>
+        </div>
+        <div style="font-size:12px;color:#888">Đường nét đứt: BMI chuẩn Việt Nam cho ${myChild.gender==='male'?'bé trai':'bé gái'} cùng tuổi</div>
+      </div>
+    </div>
+  `;
+  // Draw BMI chart (simple line)
+  setTimeout(()=>{
+    const ctx = document.getElementById('bmiChart').getContext('2d');
+    ctx.clearRect(0,0,320,180);
+    // Draw axes
+    ctx.strokeStyle = '#888'; ctx.beginPath(); ctx.moveTo(40,160); ctx.lineTo(300,160); ctx.moveTo(40,160); ctx.lineTo(40,20); ctx.stroke();
+    // Draw BMI value
+    if (bmiData.length) {
+      ctx.strokeStyle = '#007bff'; ctx.beginPath();
+      ctx.moveTo(40,160-bmiData[0].bmi*8);
+      ctx.lineTo(300,160-bmiData[0].bmi*8);
+      ctx.stroke();
+      ctx.fillStyle = '#007bff';
+      ctx.fillText('BMI: '+bmiData[0].bmi, 250, 160-bmiData[0].bmi*8-5);
+    }
+    // Draw reference BMI line
+    ctx.setLineDash([5,5]);
+    ctx.strokeStyle = '#f00'; ctx.beginPath();
+    ctx.moveTo(40,160-refBMI*8);
+    ctx.lineTo(300,160-refBMI*8);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#f00';
+    ctx.fillText('BMI chuẩn: '+refBMI, 180, 160-refBMI*8-5);
+  }, 100);
 }
 
 // ===== UI helpers =====
