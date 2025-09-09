@@ -401,9 +401,11 @@ function showAccountInfo() {
     tenantSel.onchange=()=>{ localStorage.setItem('active_tenant', tenantSel.value); location.search = updateQuery({tenant:tenantSel.value}); };
   }
 
-  // Guard: Only allow correct role for each page
+  // Guard: Only allow correct role and school/class/student for each page
   if (requiredRole){
     const role = qs('role') || localStorage.getItem('active_role');
+    const tenant = qs('tenant') || localStorage.getItem('active_tenant');
+    const email = localStorage.getItem('active_email') || '';
     // Map html role to code role
     const roleMap = {
       'tenant_admin': 'admin',
@@ -411,10 +413,36 @@ function showAccountInfo() {
       'teacher': 'teacher',
       'parent': 'parent'
     };
-    if (roleMap[role] !== page && !(page==='admin' && role==='super_admin')){
-      toast(STR[getLocale()].guard_denied);
-      setTimeout(()=>location.href='login.html', 1200);
-      return;
+    // Super admin truy cập mọi trường
+    if (role==='super_admin') {
+      // pass
+    } else if (role==='tenant_admin') {
+      // Admin chỉ truy cập trường của họ
+      if (page==='admin' && tenant) {
+        const admin = DATA.tenants.find(x=>x.code===tenant)?.admin;
+        if (!admin || admin.email!==email) {
+          toast(STR[getLocale()].guard_denied);
+          setTimeout(()=>location.href='login.html', 1200);
+          return;
+        }
+      }
+    } else if (role==='teacher') {
+      // Teacher chỉ truy cập đúng trường và class của mình
+      const teacherClasses = (DATA.classes[tenant]||[]).filter(c=>c.teacher?.email===email);
+      if (!teacherClasses.length) {
+        toast(STR[getLocale()].guard_denied);
+        setTimeout(()=>location.href='login.html', 1200);
+        return;
+      }
+    } else if (role==='parent') {
+      // Parent chỉ truy cập đúng trường và đúng học sinh của mình
+      const students = (DATA.students[tenant]||[]);
+      const myChild = students.find(s=>s.parent && s.parent.email===email);
+      if (!myChild) {
+        toast(STR[getLocale()].guard_denied);
+        setTimeout(()=>location.href='login.html', 1200);
+        return;
+      }
     }
     // Restrict /admin/** to only admin/super-admin
     if (page==='admin' && !(role==='tenant_admin'||role==='super_admin')){
