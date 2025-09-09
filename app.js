@@ -312,51 +312,6 @@ function renderAdmin(){
   const pl = document.getElementById('policy-list');
   pl.innerHTML = DATA.policies.map(p=>`<li>${p}</li>`).join('');
 
-  // Add student form
-  const classSel = document.getElementById('new-student-class');
-  classSel.innerHTML = (DATA.classes[t]||[]).map(c=>`<option value="${c.code}">${c.name} (${c.code})</option>`).join('');
-
-  document.getElementById('add-student').onclick = ()=>{
-    const name = (document.getElementById('new-student-name').value||'').trim();
-    const cls = document.getElementById('new-student-class').value;
-    const gender = document.getElementById('new-student-gender').value;
-    const dob = document.getElementById('new-student-dob').value || null;
-    if (!name || !cls){ toast("Tên và Lớp là bắt buộc / Name & Class required"); return; }
-
-    const id = uid();
-    // Generate parent for this student
-    const parentId = 'P' + id;
-    const parentName = name.split(' ').slice(-2).join(' ') + ' Parent';
-    const parentEmail = `parent.${id.toLowerCase()}@${t}.example.com`;
-    const parent = { id: parentId, name: parentName, email: parentEmail };
-    const newStu = { id, name, class: cls, gender, dob, tenant_id: t, parent };
-    // Save to custom students
-    const arr = loadCustomStudents(t); arr.push(newStu); saveCustomStudents(t, arr);
-
-    // Add to parentChildren
-    if (!DATA.parentChildren[t]) DATA.parentChildren[t] = [];
-    DATA.parentChildren[t].push([id, name, cls, parentId]);
-
-    // Add to invoices
-    if (!DATA.invoicesAug[t]) DATA.invoicesAug[t] = [];
-    DATA.invoicesAug[t].push([id, name, cls, 4000000]);
-
-    // Add to attendance
-    if (!DATA.attendanceSummaryAug) DATA.attendanceSummaryAug = [];
-    DATA.attendanceSummaryAug.push([id, cls, "Absent: – | Late: –"]);
-
-    // Add to health
-    if (!DATA.healthAug) DATA.healthAug = [];
-    DATA.healthAug.push([id, "110.0 cm", "18.0 kg", "15.0"]);
-
-    // Add to skills
-    if (!DATA.skillsAug) DATA.skillsAug = [];
-    DATA.skillsAug.push([id, "new_skill", 3, "New student"]);
-
-    const studs2 = (DATA.students[t]||[]).concat(arr.filter(s=>s.tenant_id===t));
-    document.getElementById('students-table').innerHTML = thead(['ID','Name','Class']) + studs2.map(s=>tr([s.id, s.name, s.class])).join('');
-    toast(STR[getLocale()].add_success + `: ${newStu.id} – ${newStu.name}`);
-  };
 }
 
 function renderTeacher(){
