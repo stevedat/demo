@@ -1,3 +1,4 @@
+
 const qs = (k)=>new URLSearchParams(location.search).get(k);
 // Helper: render fixed child card for parent
 function renderParentChildCard(containerId) {
