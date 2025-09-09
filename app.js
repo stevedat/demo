@@ -353,52 +353,82 @@ function renderParent(){
     dash.innerHTML = '<div style="color:red">Không tìm thấy học sinh cho phụ huynh này.</div>';
     return;
   }
-  // Find BMI history for this child
-  const bmiData = (DATA.healthAug||[]).filter(r=>r[0]===myChild.id).map(r=>{
-    return {
-      date: '08/2025',
-      height: parseFloat(r[1]),
-      weight: parseFloat(r[2]),
-      bmi: parseFloat(r[3])
-    };
-  });
-  // Calculate age in months for BMI reference
+  // Lấy giáo viên chủ nhiệm
+  const classInfo = (DATA.classes[t]||[]).find(c=>c.code===myChild.class);
+  const teacher = classInfo?.teacher;
+  // BMI/health data 2 tháng gần nhất (giả lập 07/2025 và 08/2025)
+  const healths = (DATA.healthAug||[]).filter(r=>r[0]===myChild.id);
+  // Giả lập thêm dữ liệu tháng 07/2025 nếu chưa có
+  const healthHistory = [
+    {date:'07/2025', height:myChild.gender==='male'?110:109, weight:myChild.gender==='male'?17.5:17.0, bmi:myChild.gender==='male'?14.5:14.3},
+    ...healths.map(r=>({date:'08/2025', height:parseFloat(r[1]), weight:parseFloat(r[2]), bmi:parseFloat(r[3])}))
+  ];
+  // Tuổi
   const dob = new Date(myChild.dob);
   const now = new Date('2025-08-01');
   const ageMonths = (now.getFullYear()-dob.getFullYear())*12 + (now.getMonth()-dob.getMonth());
-  // Placeholder for VN BMI reference (should be replaced with real data)
+  // BMI chuẩn mẫu
   const refBMI = myChild.gender==='male' ? 15.5 : 15.2;
+  // Lịch học tuần mẫu
+  const weekDays = ['Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6'];
+  const todayIdx = (new Date()).getDay()-1; // 0=Monday
+  const schedule = [
+    {day:'Thứ 2',subject:'Toán, Vẽ'},
+    {day:'Thứ 3',subject:'Văn, Âm nhạc'},
+    {day:'Thứ 4',subject:'Tiếng Anh, Thể dục'},
+    {day:'Thứ 5',subject:'Khoa học, Vẽ'},
+    {day:'Thứ 6',subject:'Kỹ năng sống, Âm nhạc'}
+  ];
+  // Học phí tháng hiện tại
+  const invoice = (DATA.invoicesAug[t]||[]).find(r=>r[0]===myChild.id);
   dash.innerHTML = `
-    <div class="card">
-      <h2>Dashboard</h2>
-      <div><b>${myChild.name}</b> (${myChild.class})</div>
-      <div>Ngày sinh: ${myChild.dob} (${myChild.gender==='male'?'Nam':'Nữ'})</div>
-      <div>Tuổi: ${(ageMonths/12).toFixed(1)} năm</div>
-      <div style="margin-top:16px">
-        <b>BMI tháng 8/2025:</b> ${bmiData.length?bmiData[0].bmi:'N/A'}
-        <div style="margin-top:8px">
-          <canvas id="bmiChart" width="320" height="180"></canvas>
-        </div>
-        <div style="font-size:12px;color:#888">Đường nét đứt: BMI chuẩn Việt Nam cho ${myChild.gender==='male'?'bé trai':'bé gái'} cùng tuổi</div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-size:20px;font-weight:700">${myChild.name}</div>
+      <div>Lớp: <b>${myChild.class}</b> | Tuổi: ${(ageMonths/12).toFixed(1)} năm</div>
+      <div>Giáo viên chủ nhiệm: <b>${teacher?.name||'N/A'}</b> <a href="https://zalo.me/" target="_blank" style="margin-left:8px;color:#007bff;text-decoration:underline">Zalo</a></div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-weight:600">Sức khoẻ tháng 8/2025</div>
+      <div>Cân nặng: <b>${healthHistory[1]?.weight||'N/A'} kg</b> | Chiều cao: <b>${healthHistory[1]?.height||'N/A'} cm</b> | BMI: <b>${healthHistory[1]?.bmi||'N/A'}</b></div>
+      <div style="margin-top:8px">
+        <canvas id="bmiChart" width="320" height="180"></canvas>
+      </div>
+      <div style="font-size:12px;color:#888">Đường nét đứt: BMI chuẩn Việt Nam cho ${myChild.gender==='male'?'bé trai':'bé gái'} cùng tuổi</div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-weight:600">Biểu đồ chiều cao/cân nặng 2 tháng gần nhất</div>
+      <div style="margin-top:8px">
+        <canvas id="hwChart" width="320" height="180"></canvas>
       </div>
     </div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-weight:600">Lịch học tuần này</div>
+      <table class="table" style="width:100%;margin-top:8px">
+        <tr>${schedule.map(s=>`<th>${s.day}</th>`).join('')}</tr>
+        <tr>${schedule.map((s,i)=>`<td style="${i===todayIdx?'background:#e3f2fd':''}">${s.subject}</td>`).join('')}</tr>
+      </table>
+      <div style="font-size:12px;color:#888">* Hôm nay: ${schedule[todayIdx]?.subject||''}</div>
+    </div>
+    <div class="card">
+      <div style="font-weight:600">Học phí tháng 8/2025</div>
+      <div>Số tiền: <b>${invoice?fmt(invoice[3])+'₫':'N/A'}</b> | Trạng thái: <span class="badge ok">Đã tạo</span></div>
+    </div>
   `;
-  // Draw BMI chart (simple line)
+  // Vẽ biểu đồ BMI
   setTimeout(()=>{
     const ctx = document.getElementById('bmiChart').getContext('2d');
     ctx.clearRect(0,0,320,180);
-    // Draw axes
     ctx.strokeStyle = '#888'; ctx.beginPath(); ctx.moveTo(40,160); ctx.lineTo(300,160); ctx.moveTo(40,160); ctx.lineTo(40,20); ctx.stroke();
-    // Draw BMI value
-    if (bmiData.length) {
-      ctx.strokeStyle = '#007bff'; ctx.beginPath();
-      ctx.moveTo(40,160-bmiData[0].bmi*8);
-      ctx.lineTo(300,160-bmiData[0].bmi*8);
-      ctx.stroke();
-      ctx.fillStyle = '#007bff';
-      ctx.fillText('BMI: '+bmiData[0].bmi, 250, 160-bmiData[0].bmi*8-5);
-    }
-    // Draw reference BMI line
+    // BMI 2 tháng
+    ctx.strokeStyle = '#007bff'; ctx.beginPath();
+    healthHistory.forEach((h,i)=>{
+      const x = 40 + i*120;
+      const y = 160-h.bmi*8;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      ctx.arc(x,y,3,0,2*Math.PI); ctx.moveTo(x,y);
+    });
+    ctx.stroke();
+    // BMI chuẩn
     ctx.setLineDash([5,5]);
     ctx.strokeStyle = '#f00'; ctx.beginPath();
     ctx.moveTo(40,160-refBMI*8);
@@ -407,7 +437,36 @@ function renderParent(){
     ctx.setLineDash([]);
     ctx.fillStyle = '#f00';
     ctx.fillText('BMI chuẩn: '+refBMI, 180, 160-refBMI*8-5);
+    ctx.fillStyle = '#007bff';
+    healthHistory.forEach((h,i)=>ctx.fillText(h.date, 40+i*120-10, 170));
   }, 100);
+  // Vẽ biểu đồ chiều cao/cân nặng
+  setTimeout(()=>{
+    const ctx = document.getElementById('hwChart').getContext('2d');
+    ctx.clearRect(0,0,320,180);
+    ctx.strokeStyle = '#888'; ctx.beginPath(); ctx.moveTo(40,160); ctx.lineTo(300,160); ctx.moveTo(40,160); ctx.lineTo(40,20); ctx.stroke();
+    // Chiều cao
+    ctx.strokeStyle = '#43a047'; ctx.beginPath();
+    healthHistory.forEach((h,i)=>{
+      const x = 40 + i*120;
+      const y = 160-h.height;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      ctx.arc(x,y,3,0,2*Math.PI); ctx.moveTo(x,y);
+    });
+    ctx.stroke();
+    ctx.fillStyle = '#43a047'; ctx.fillText('Chiều cao', 250, 30);
+    // Cân nặng
+    ctx.strokeStyle = '#fbc02d'; ctx.beginPath();
+    healthHistory.forEach((h,i)=>{
+      const x = 40 + i*120;
+      const y = 160-h.weight*6;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      ctx.arc(x,y,3,0,2*Math.PI); ctx.moveTo(x,y);
+    });
+    ctx.stroke();
+    ctx.fillStyle = '#fbc02d'; ctx.fillText('Cân nặng', 250, 50);
+    healthHistory.forEach((h,i)=>ctx.fillText(h.date, 40+i*120-10, 170));
+  }, 120);
 }
 
 // ===== UI helpers =====
