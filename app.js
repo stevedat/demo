@@ -134,22 +134,58 @@ if (location.pathname.endsWith('parent-fee.html')) {
       let amt = 4000000+i*100000;
       return {date:m, amount:amt, status:amt%2===0?'Đã thanh toán':'Chưa thanh toán'};
     });
-    // Bảng kê mẫu
-    const items = [
-      {label:'Học phí tổng',amount:2000000},
-      {label:'Phí bán trú',amount:800000},
-      {label:'Cơ sở vật chất',amount:600000},
-      {label:'Môn năng khiếu',amount:200000},
-      {label:'Tiền ăn',amount:400000},
-      {label:'Ngoại khoá',amount:0},
-      {label:'Giảm học phí',amount:-200000}
-    ];
+
+    // Hàm sinh bảng kê động từng tháng
+    function getFeeItems(monthIdx) {
+      // Tháng 9 mới có cơ sở vật chất, các tháng khác là 0
+      let isSep = months[monthIdx].startsWith('09/');
+      let items = [
+        {label:'Học phí tổng',amount:2000000},
+        {label:'Phí bán trú',amount:800000},
+        {label:'Cơ sở vật chất',amount:monthIdx===0?600000:0},
+        {label:'Môn năng khiếu',amount:200000},
+        {label:'Tiền ăn',amount:400000},
+        {label:'Ngoại khoá',amount:monthIdx===2?300000:0}, // ví dụ tháng 5 có ngoại khoá
+        {label:'Giảm học phí',amount:-200000}
+      ];
+      return items.filter(i=>i.amount!==0||i.label==='Giảm học phí'||i.label==='Học phí tổng');
+    }
+
+    // Hiện modal bảng kê
+    function showFeeModal(monthIdx) {
+      const modal = document.getElementById('fee-modal');
+      const title = document.getElementById('fee-modal-title');
+      const body = document.getElementById('fee-modal-body');
+      title.textContent = `Bảng kê chi tiết học phí tháng ${months[monthIdx]}`;
+      const items = getFeeItems(monthIdx);
+      body.innerHTML = `<ul style='padding-left:18px'>${items.map(i=>`<li>${i.label}: <b>${i.amount.toLocaleString('vi-VN')}₫</b></li>`).join('')}</ul>`;
+      modal.style.display = 'flex';
+    }
+
+    // Đóng modal
+    setTimeout(()=>{
+      const modal = document.getElementById('fee-modal');
+      document.getElementById('fee-modal-close').onclick = ()=>{modal.style.display='none';};
+      modal.onclick = e=>{if(e.target===modal)modal.style.display='none';};
+    },200);
+
     dash.innerHTML = `
       <div class="card"><b>Học phí tháng 8/2025</b><br>Số tiền: <b>${fees[5].amount.toLocaleString('vi-VN')}₫</b> | Trạng thái: <span class="badge ${fees[5].status==='Đã thanh toán'?'ok':'bad'}">${fees[5].status}</span></div>
-      <div class="card"><b>Bảng kê chi tiết</b><ul>${items.map(i=>`<li>${i.label}: <b>${i.amount.toLocaleString('vi-VN')}₫</b></li>`).join('')}</ul></div>
-      <div class="card"><b>Chuyển khoản</b><br>Số tài khoản: <b>123456789</b><br>Chủ tài khoản: <b>Trường ${t==='sunshine'?'Sunshine':'Rainbow'}</b><br>Cú pháp: <b>${myChild.id} ${myChild.name} HP0825</b><br><img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=demo" style="display:block;margin:12px auto 0 auto"></div>
-      <div class="card"><b>Học phí các tháng trước</b><ul>${fees.slice(0,5).reverse().map(f=>`<li>${f.date}: <b>${f.amount.toLocaleString('vi-VN')}₫</b> <span class="badge ${f.status==='Đã thanh toán'?'ok':'bad'}">${f.status}</span></li>`).join('')}</ul></div>
+      <div class="card"><b>Bảng kê chi tiết</b> <button id='btn-fee-breakdown' style='margin-left:8px;padding:2px 10px;font-size:14px'>Xem</button></div>
+      <div class="card" style="text-align:center"><b>Chuyển khoản</b><br><div style="margin:8px 0 4px 0">Số tài khoản: <b>123456789</b><br>Chủ tài khoản: <b>Trường ${t==='sunshine'?'Sunshine':'Rainbow'}</b><br>Cú pháp: <b>${myChild.id} ${myChild.name} HP0825</b></div><img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=demo" style="display:block;margin:12px auto 0 auto"></div>
+      <div class="card"><b>Học phí các tháng trước</b><ul style='padding-left:18px'>${fees.slice(0,5).reverse().map((f,idx)=>{
+        const realIdx = 4-idx;
+        return `<li style='cursor:pointer;color:#1976d2' class='fee-prev-item' data-month='${realIdx}'>${months[realIdx]}: <b>${f.amount.toLocaleString('vi-VN')}₫</b> <span class="badge ${f.status==='Đã thanh toán'?'ok':'bad'}">${f.status}</span></li>`;
+      }).join('')}</ul></div>
     `;
+
+    // Sự kiện xem bảng kê tháng hiện tại
+    setTimeout(()=>{
+      document.getElementById('btn-fee-breakdown').onclick = ()=>showFeeModal(5);
+      document.querySelectorAll('.fee-prev-item').forEach(el=>{
+        el.onclick = ()=>showFeeModal(+el.getAttribute('data-month'));
+      });
+    },100);
   }
 }
 // ===== i18n strings =====
