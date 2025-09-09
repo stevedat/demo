@@ -434,12 +434,39 @@ function renderAdmin(){
   const students = DATA.students[t]||[];
   const teachers = classes.map(c=>c.teacher).filter(Boolean);
   const studentsByClass = classes.map(c=>`<div>Lớp ${c.code}: <b>${students.filter(s=>s.class===c.code).length}</b></div>`).join('');
-  tenantKpis.innerHTML = `<div class="card"><b>${DATA.tenants.find(x=>x.code===t)?.name||t}</b><br>
-    Tổng số lớp: <b>${classes.length}</b><br>
-    Tổng số học sinh: <b>${students.length}</b><br>
-    ${studentsByClass}
-    Tổng số giáo viên: <b>${teachers.length}</b>
-  </div>`;
+  // Tổng thu học phí toàn trường
+  const invoices = DATA.invoicesAug[t] || [];
+  const totalFee = invoices.reduce((sum, r) => sum + (r[3] || 0), 0);
+  // Tổng học phí theo lớp
+  const feeByClass = classes.map(c => {
+    const classInvoices = invoices.filter(r => r[2] === c.code);
+    const sum = classInvoices.reduce((s, r) => s + (r[3] || 0), 0);
+    return { code: c.code, sum, unpaid: classInvoices.filter(r => r[3] % 2 !== 0) };
+  });
+  // Học phí chưa thanh toán theo lớp
+  const unpaidByClass = feeByClass.map(fbc => ({
+    code: fbc.code,
+    unpaid: fbc.unpaid.map(r => ({ id: r[0], name: r[1], amount: r[3] }))
+  }));
+
+  tenantKpis.innerHTML = `
+    <div class="card"><b>${DATA.tenants.find(x=>x.code===t)?.name||t}</b><br>
+      Tổng số lớp: <b>${classes.length}</b><br>
+      Tổng số học sinh: <b>${students.length}</b><br>
+      ${studentsByClass}
+      Tổng số giáo viên: <b>${teachers.length}</b><br>
+      <hr style='margin:8px 0'>
+      <b>Tổng thu học phí toàn trường:</b> <span style='color:#1976d2'>${totalFee.toLocaleString('vi-VN')}₫</span><br>
+      <b>Tổng học phí theo lớp:</b><br>
+      ${feeByClass.map(fbc => `Lớp <b>${fbc.code}</b>: <span style='color:#1976d2'>${fbc.sum.toLocaleString('vi-VN')}₫</span>`).join('<br>')}
+      <hr style='margin:8px 0'>
+      <b>Học phí chưa thanh toán theo lớp:</b><br>
+      ${unpaidByClass.map(ubc =>
+        `Lớp <b>${ubc.code}</b>: ` +
+        (ubc.unpaid.length ? ubc.unpaid.map(u => `<span style='color:#d32f2f'>${u.name} (${u.id}): ${u.amount.toLocaleString('vi-VN')}₫</span>`).join('; ') : '<span style="color:#388e3c">Tất cả đã thanh toán</span>')
+      ).join('<br>')}
+    </div>
+  `;
 
   // Card tenants: chỉ tên, State (có thể đổi), Admin tenant
   const table = document.getElementById('tenant-table');
