@@ -250,6 +250,7 @@ function renderPlatform(){
 }
 
 function renderAdmin(){
+  const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
   const tenant = DATA.tenants.find(x=>x.code===t);
   // Bổ sung dữ liệu demo nếu thiếu
   if (!DATA.classes[t]) DATA.classes[t] = [
