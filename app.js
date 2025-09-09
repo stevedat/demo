@@ -245,18 +245,28 @@ const DATA = {
   },
   students: {
     sunshine:[
-      {id:"S1",name:"Nguyen Gia Bao",class:"KGA",gender:"male",dob:"2019-03-15",parent:{id:"P1",name:"Pham Van Binh",email:"binh.parent.sunshine@example.com"}},
-      {id:"S2",name:"Tran My An",class:"KGA",gender:"female",dob:"2019-07-22",parent:{id:"P2",name:"Tran Thi Lan",email:"lan.parent.sunshine@example.com"}},
-      {id:"S3",name:"Le Quang Huy",class:"KGA",gender:"male",dob:"2018-11-05",parent:{id:"P3",name:"Le Van Son",email:"son.parent.sunshine@example.com"}},
-      {id:"S4",name:"Pham Minh Chau",class:"KGB",gender:"female",dob:"2019-01-30",parent:{id:"P4",name:"Pham Thi Dao",email:"dao.parent.sunshine@example.com"}},
-      {id:"S5",name:"Do Bao Han",class:"KGB",gender:"female",dob:"2018-09-18",parent:{id:"P5",name:"Do Van Hieu",email:"hieu.parent.sunshine@example.com"}}
+      {id:"S1",name:"Nguyen Gia Bao",class:"KGA",gender:"male",dob:"2019-03-15",parent:{id:"P1",name:"Pham Van Binh",email:"binh.parent.sunshine@example.com"},
+        allergies:"Không", notes:"Ăn ngoan, thích vẽ", address:"12 Lê Lợi, Q.1", phone:"0901234567"},
+      {id:"S2",name:"Tran My An",class:"KGA",gender:"female",dob:"2019-07-22",parent:{id:"P2",name:"Tran Thi Lan",email:"lan.parent.sunshine@example.com"},
+        allergies:"Trứng", notes:"Cần chú ý khi vận động", address:"34 Nguyễn Huệ, Q.1", phone:"0902345678"},
+      {id:"S3",name:"Le Quang Huy",class:"KGA",gender:"male",dob:"2018-11-05",parent:{id:"P3",name:"Le Van Son",email:"son.parent.sunshine@example.com"},
+        allergies:"Không", notes:"Thích toán, hơi nhút nhát", address:"56 Pasteur, Q.3", phone:"0903456789"},
+      {id:"S4",name:"Pham Minh Chau",class:"KGB",gender:"female",dob:"2019-01-30",parent:{id:"P4",name:"Pham Thi Dao",email:"dao.parent.sunshine@example.com"},
+        allergies:"Sữa", notes:"Năng động, thích múa", address:"78 Hai Bà Trưng, Q.1", phone:"0904567890"},
+      {id:"S5",name:"Do Bao Han",class:"KGB",gender:"female",dob:"2018-09-18",parent:{id:"P5",name:"Do Van Hieu",email:"hieu.parent.sunshine@example.com"},
+        allergies:"Không", notes:"Chăm chỉ, thích đọc truyện", address:"90 Lý Tự Trọng, Q.1", phone:"0905678901"}
     ],
     rainbow:[
-      {id:"R1S1",name:"Nguyen Minh Khoa",class:"R1",gender:"male",dob:"2019-04-10",parent:{id:"RP1",name:"Nguyen Van Cuong",email:"cuong.parent.rainbow@example.com"}},
-      {id:"R1S2",name:"Tran Bao Chau",class:"R1",gender:"female",dob:"2019-08-12",parent:{id:"RP2",name:"Tran Thi Mai",email:"mai.parent.rainbow@example.com"}},
-      {id:"R2S1",name:"Le Quoc Duy",class:"R2",gender:"male",dob:"2018-12-01",parent:{id:"RP3",name:"Le Van Tien",email:"tien.parent.rainbow@example.com"}},
-      {id:"R2S2",name:"Pham Minh Anh",class:"R2",gender:"female",dob:"2019-02-25",parent:{id:"RP4",name:"Pham Thi Hoa",email:"hoa.parent.rainbow@example.com"}},
-      {id:"R2S3",name:"Do Bao Linh",class:"R2",gender:"female",dob:"2018-10-20",parent:{id:"RP5",name:"Do Van Phuc",email:"phuc.parent.rainbow@example.com"}}
+      {id:"R1S1",name:"Nguyen Minh Khoa",class:"R1",gender:"male",dob:"2019-04-10",parent:{id:"RP1",name:"Nguyen Van Cuong",email:"cuong.parent.rainbow@example.com"},
+        allergies:"Không", notes:"Thích thể thao", address:"12 Lê Lợi, Q.5", phone:"0911234567"},
+      {id:"R1S2",name:"Tran Bao Chau",class:"R1",gender:"female",dob:"2019-08-12",parent:{id:"RP2",name:"Tran Thi Mai",email:"mai.parent.rainbow@example.com"},
+        allergies:"Tôm", notes:"Vui vẻ, thích hát", address:"34 Nguyễn Huệ, Q.5", phone:"0912345678"},
+      {id:"R2S1",name:"Le Quoc Duy",class:"R2",gender:"male",dob:"2018-12-01",parent:{id:"RP3",name:"Le Van Tien",email:"tien.parent.rainbow@example.com"},
+        allergies:"Không", notes:"Thích vẽ, thích toán", address:"56 Pasteur, Q.5", phone:"0913456789"},
+      {id:"R2S2",name:"Pham Minh Anh",class:"R2",gender:"female",dob:"2019-02-25",parent:{id:"RP4",name:"Pham Thi Hoa",email:"hoa.parent.rainbow@example.com"},
+        allergies:"Không", notes:"Năng động, thích múa", address:"78 Hai Bà Trưng, Q.5", phone:"0914567890"},
+      {id:"R2S3",name:"Do Bao Linh",class:"R2",gender:"female",dob:"2018-10-20",parent:{id:"RP5",name:"Do Van Phuc",email:"phuc.parent.rainbow@example.com"},
+        allergies:"Không", notes:"Chăm chỉ, thích đọc truyện", address:"90 Lý Tự Trọng, Q.5", phone:"0915678901"}
     ]
   },
   invoicesAug: {
@@ -360,7 +370,7 @@ function showAccountInfo() {
       }
     }
   }, 200);
-
+    <tr>${schedule.map(s=>`<td>${s.subject}</td>`).join('')}</tr>
   const localeSel = document.getElementById('locale');
   if (localeSel) {
     const loc = getLocale();
