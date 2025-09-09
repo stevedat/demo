@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Parent • My Children</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="styles.css" rel="stylesheet">
+  <script defer src="app.js"></script>
+</head>
+<body data-page="parent" data-required-role="parent">
+  <header class="topbar">
+    <div class="brand">Kindy Demo</div>
+    <div class="controls">
+      <select id="tenant"></select>
+      <select id="locale"></select>
+      <button id="signout" class="ghost" data-i18n="signout">Đăng xuất</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 data-i18n="parent_title">Phụ huynh</h1>
+
+    <section class="card">
+      <h2 data-i18n="my_children">Con của tôi</h2>
+      <table id="children-table" class="table"></table>
+    </section>
+
+    <div class="grid two">
+      <section class="card">
+        <h2 data-i18n="my_invoices">Hóa đơn 08/2025</h2>
+        <table id="my-invoices-table" class="table"></table>
+      </section>
+      <section class="card">
+        <h2 data-i18n="attendance_mini">Attendance tóm tắt</h2>
+        <table id="my-attendance-table" class="table"></table>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">&copy; 2025 Kindy Demo</footer>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Tenant Admin • School Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="styles.css" rel="stylesheet">
+  <script defer src="app.js"></script>
+</head>
+<body data-page="admin" data-required-role="tenant_admin">
+  <header class="topbar">
+    <div class="brand">Kindy Demo</div>
+    <div class="controls">
+      <select id="tenant"></select>
+      <select id="locale"></select>
+      <button id="signout" class="ghost" data-i18n="signout">Đăng xuất</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 data-i18n="admin_title">Bảng điều khiển (Tenant Admin)</h1>
+
+    <section class="grid kpis" id="tenant-kpis"></section>
+
+    <div class="grid two">
+      <section class="card">
+        <h2 data-i18n="students">Học sinh</h2>
+        <table id="students-table" class="table"></table>
+      </section>
+      <section class="card">
+        <h2 data-i18n="invoices">Hóa đơn 08/2025</h2>
+        <table id="invoices-table" class="table"></table>
+      </section>
+    </div>
+
+    <div class="grid two">
+      <section class="card">
+        <h2 data-i18n="expenses">Chi phí 08/2025</h2>
+        <table id="expenses-table" class="table"></table>
+      </section>
+      <section class="card">
+        <h2 data-i18n="policies">Chính sách tính phí</h2>
+        <ul class="bullets" id="policy-list"></ul>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2 data-i18n="add_student_title">Thêm học sinh mới</h2>
+      <div class="grid two">
+        <div>
+          <label data-i18n="student_name">Họ và tên</label>
+          <input id="new-student-name" placeholder="VD: Nguyen An">
+        </div>
+        <div>
+          <label data-i18n="student_class">Lớp</label>
+          <select id="new-student-class"></select>
+        </div>
+      </div>
+      <div class="grid two">
+        <div>
+          <label data-i18n="student_gender">Giới tính</label>
+          <select id="new-student-gender">
+            <option value="male">Nam</option>
+            <option value="female">Nữ</option>
+            <option value="other">Khác</option>
+          </select>
+        </div>
+        <div>
+          <label data-i18n="student_dob">Ngày sinh</label>
+          <input id="new-student-dob" type="date">
+        </div>
+      </div>
+      <button id="add-student" class="primary" data-i18n="add_student_btn">Thêm học sinh</button>
+      <p id="add-student-msg" class="muted"></p>
+    </section>
+  </main>
+
+  <footer class="footer">&copy; 2025 Kindy Demo</footer>
+</body>
+</html>

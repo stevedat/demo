@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Super Admin • Platform</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="styles.css" rel="stylesheet">
+  <script defer src="app.js"></script>
+</head>
+<body data-page="super-admin" data-required-role="super_admin">
+  <header class="topbar">
+    <div class="brand">Kindy Demo</div>
+    <div class="controls">
+      <select id="locale"></select>
+      <button id="signout" class="ghost" data-i18n="signout">Đăng xuất</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 data-i18n="platform_title">Nền tảng (Super Admin)</h1>
+    <section class="grid kpis" id="platform-kpis"></section>
+    <section class="card">
+      <h2 data-i18n="tenants">Tenants</h2>
+      <table id="tenant-table" class="table"></table>
+    </section>
+  </main>
+
+  <footer class="footer">&copy; 2025 Kindy Demo</footer>
+</body>
+</html>
