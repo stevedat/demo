@@ -14,12 +14,16 @@
       <label for="role" data-i18n="role">Vai trò</label>
       <select id="role" name="role">
         <option value="super_admin">Super Admin</option>
-        <option value="tenant_admin">Tenant Admin</option>
-        <option value="teacher">Teacher</option>
-        <option value="parent">Parent</option>
+        <option value="tenant_admin">Tenant Admin - Sunshine</option>
+        <option value="tenant_admin">Tenant Admin - Rainbow</option>
+        <option value="teacher">Teacher - Sunshine</option>
+        <option value="teacher">Teacher - Rainbow</option>
+        <option value="parent">Parent - Sunshine</option>
+        <option value="parent">Parent - Rainbow</option>
       </select>
       <label for="email" data-i18n="email">Email</label>
       <input type="email" id="email" name="email" required>
+      <button type="button" id="fill-account" style="margin:8px 0 8px 0">Chọn tài khoản mẫu</button>
       <label for="password" data-i18n="password">Mật khẩu</label>
       <input type="password" id="password" name="password" required>
       <button type="submit" data-i18n="signin">Đăng nhập</button>
@@ -28,6 +32,29 @@
     <select id="locale" style="margin-top:10px;"></select>
   </div>
   <script>
+    // Tự động điền email mẫu khi chọn role
+    document.getElementById('fill-account').onclick = function() {
+      const roleSel = document.getElementById('role');
+      const tenantSel = document.getElementById('tenant');
+      const emailInput = document.getElementById('email');
+      const role = roleSel.value;
+      let email = '', t = tenantSel.value;
+      if (role === 'super_admin') {
+        email = 'super.admin@example.com';
+      } else if (role === 'tenant_admin') {
+        if (roleSel.selectedIndex === 1) { email = 'admin.sunshine@example.com'; t = 'sunshine'; }
+        else { email = 'admin.rainbow@example.com'; t = 'rainbow'; }
+      } else if (role === 'teacher') {
+        if (roleSel.selectedIndex === 3) { email = 'teacher1.sunshine@example.com'; t = 'sunshine'; }
+        else { email = 'teacher1.rainbow@example.com'; t = 'rainbow'; }
+      } else if (role === 'parent') {
+        if (roleSel.selectedIndex === 5) { email = 'binh.parent.sunshine@example.com'; t = 'sunshine'; }
+        else { email = 'cuong.parent.rainbow@example.com'; t = 'rainbow'; }
+      }
+      emailInput.value = email;
+      tenantSel.value = t;
+    };
+
     document.getElementById('login-form').onsubmit = function(e) {
       e.preventDefault();
       const t = document.getElementById('tenant').value;
@@ -37,11 +64,7 @@
       localStorage.setItem('active_locale', loc);
       localStorage.setItem('active_tenant', t);
       localStorage.setItem('active_role', r);
-      if (r === 'parent') {
-        localStorage.setItem('active_email', email);
-      } else {
-        localStorage.removeItem('active_email');
-      }
+      localStorage.setItem('active_email', email);
       const route = {
         super_admin: 'super-admin.html',
         tenant_admin: 'admin.html',

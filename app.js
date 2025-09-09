@@ -111,9 +111,64 @@ function lsKeyStudents(t){ return `kindy_custom_${t}_students`; }
 function loadCustomStudents(t){ try { return JSON.parse(localStorage.getItem(lsKeyStudents(t))||'[]'); } catch(e){ return []; } }
 function saveCustomStudents(t, arr){ localStorage.setItem(lsKeyStudents(t), JSON.stringify(arr)); }
 
+function showAccountInfo() {
+  const role = localStorage.getItem('active_role') || '';
+  const tenant = localStorage.getItem('active_tenant') || '';
+  const locale = localStorage.getItem('active_locale') || 'vi-VN';
+  let name = '', email = '', roleLabel = role;
+  if (role === 'super_admin') {
+    name = 'Super Admin';
+    email = 'super.admin@example.com';
+    roleLabel = 'Super Admin';
+  } else if (role === 'tenant_admin') {
+    const t = DATA.tenants.find(x=>x.code===tenant);
+    name = t?.admin?.name || '';
+    email = t?.admin?.email || '';
+    roleLabel = 'Tenant Admin';
+  } else if (role === 'teacher') {
+    // Lấy teacher theo tenant và email
+    const teachers = (DATA.classes[tenant]||[]).map(c=>c.teacher);
+    const emailStored = localStorage.getItem('active_email') || '';
+    const teacher = teachers.find(t=>t.email===emailStored) || teachers[0];
+    name = teacher?.name || '';
+    email = teacher?.email || '';
+    roleLabel = 'Teacher';
+  } else if (role === 'parent') {
+    const emailStored = localStorage.getItem('active_email') || '';
+    const students = (DATA.students[tenant]||[]);
+    const stu = students.find(s=>s.parent && s.parent.email===emailStored);
+    name = stu?.parent?.name || '';
+    email = stu?.parent?.email || '';
+    roleLabel = 'Parent';
+  }
+  const html = `<div class="card" style="min-width:220px"><b>${roleLabel}</b><br>${name}<br><span style='font-size:12px;color:#888'>${email}</span><br><span style='font-size:12px'>Tenant: ${tenant}</span></div>`;
+  const box = document.createElement('div');
+  box.innerHTML = html;
+  box.style.position = 'fixed'; box.style.top = '60px'; box.style.right = '20px'; box.style.zIndex = 9999; box.style.background = '#fff'; box.style.border = '1px solid #ccc'; box.style.padding = '16px'; box.style.borderRadius = '8px';
+  box.onclick = ()=>box.remove();
+  document.body.appendChild(box);
+  setTimeout(()=>{ if(document.body.contains(box)) box.remove(); }, 6000);
+}
+
 (function init(){
   const page = document.body.dataset.page;
   const requiredRole = document.body.dataset.requiredRole || null;
+
+  // Add account button to header if not exists
+  setTimeout(()=>{
+    if (!document.getElementById('account-btn')) {
+      const header = document.querySelector('.topbar .controls') || document.querySelector('.topbar');
+      if (header) {
+        const btn = document.createElement('button');
+        btn.id = 'account-btn';
+        btn.className = 'ghost';
+        btn.textContent = 'Tài khoản';
+        btn.style.marginLeft = '8px';
+        btn.onclick = showAccountInfo;
+        header.appendChild(btn);
+      }
+    }
+  }, 200);
 
   const localeSel = document.getElementById('locale');
   if (localeSel) {
