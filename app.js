@@ -418,6 +418,12 @@ function showAccountInfo() {
   if (page==='admin') renderAdmin();
   if (page==='teacher') renderTeacher();
   if (page==='parent') renderParent();
+
+  // Ensure parent dashboard always renders correct child data for the logged-in parent
+  if (page==='parent') {
+    renderParentChildCard('parent-child-card');
+    renderParent();
+  }
 })();
 
 function renderPlatform(){
