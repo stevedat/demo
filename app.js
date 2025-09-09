@@ -426,21 +426,20 @@ function showAccountInfo() {
   }
 })();
 
-function renderPlatform(){
-  const kpis = document.getElementById('platform-kpis');
-  // Card trường: tổng số lớp, tổng số học sinh, học sinh theo lớp, tổng số giáo viên
-  kpis.innerHTML = DATA.tenants.map(t => {
-    const classes = DATA.classes[t.code]||[];
-    const students = DATA.students[t.code]||[];
-    const teachers = classes.map(c=>c.teacher).filter(Boolean);
-    const studentsByClass = classes.map(c=>`<div>Lớp ${c.code}: <b>${students.filter(s=>s.class===c.code).length}</b></div>`).join('');
-    return `<div class="card"><b>${t.name}</b><br>
-      Tổng số lớp: <b>${classes.length}</b><br>
-      Tổng số học sinh: <b>${students.length}</b><br>
-      ${studentsByClass}
-      Tổng số giáo viên: <b>${teachers.length}</b>
-    </div>`;
-  }).join('');
+function renderAdmin(){
+  // Determine tenant for this admin
+  const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
+  const tenantKpis = document.getElementById('tenant-kpis');
+  const classes = DATA.classes[t]||[];
+  const students = DATA.students[t]||[];
+  const teachers = classes.map(c=>c.teacher).filter(Boolean);
+  const studentsByClass = classes.map(c=>`<div>Lớp ${c.code}: <b>${students.filter(s=>s.class===c.code).length}</b></div>`).join('');
+  tenantKpis.innerHTML = `<div class="card"><b>${DATA.tenants.find(x=>x.code===t)?.name||t}</b><br>
+    Tổng số lớp: <b>${classes.length}</b><br>
+    Tổng số học sinh: <b>${students.length}</b><br>
+    ${studentsByClass}
+    Tổng số giáo viên: <b>${teachers.length}</b>
+  </div>`;
 
   // Card tenants: chỉ tên, State (có thể đổi), Admin tenant
   const table = document.getElementById('tenant-table');
@@ -550,20 +549,20 @@ function renderTeacher(){
   `;
 }
 
-function renderParent(){
+function renderAdmin(){
+  // Determine tenant for this admin
   const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
-  const parentEmail = localStorage.getItem('active_email') || '';
-  // Find student for this parent
-  const students = (DATA.students[t]||[]);
-  const myChild = students.find(s => s.parent && s.parent.email === parentEmail);
-  const dash = document.getElementById('parent-dashboard');
-  if (!myChild) {
-    dash.innerHTML = '<div style="color:red">Không tìm thấy học sinh cho phụ huynh này.</div>';
-    return;
-  }
-  // Lấy giáo viên chủ nhiệm
-  const classInfo = (DATA.classes[t]||[]).find(c=>c.code===myChild.class);
-  const teacher = classInfo?.teacher;
+  const tenantKpis = document.getElementById('tenant-kpis');
+  const classes = DATA.classes[t]||[];
+  const students = DATA.students[t]||[];
+  const teachers = classes.map(c=>c.teacher).filter(Boolean);
+  const studentsByClass = classes.map(c=>`<div>Lớp ${c.code}: <b>${students.filter(s=>s.class===c.code).length}</b></div>`).join('');
+  tenantKpis.innerHTML = `<div class="card"><b>${DATA.tenants.find(x=>x.code===t)?.name||t}</b><br>
+    Tổng số lớp: <b>${classes.length}</b><br>
+    Tổng số học sinh: <b>${students.length}</b><br>
+    ${studentsByClass}
+    Tổng số giáo viên: <b>${teachers.length}</b>
+  </div>`;
   // BMI/health data 2 tháng gần nhất (giả lập 07/2025 và 08/2025, luôn đủ dữ liệu)
   let healths = (DATA.healthAug||[]).filter(r=>r[0]===myChild.id);
   // Đảm bảo luôn có 2 tháng
