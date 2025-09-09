@@ -1,3 +1,156 @@
+// Helper: render fixed child card for parent
+function renderParentChildCard(containerId) {
+  const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
+  const parentEmail = localStorage.getItem('active_email') || '';
+  const students = (DATA.students[t]||[]);
+  const myChild = students.find(s => s.parent && s.parent.email === parentEmail);
+  const el = document.getElementById(containerId);
+  if (!myChild) {
+    el.innerHTML = '<div style="color:red">Không tìm thấy học sinh cho phụ huynh này.</div>';
+    return;
+  }
+  el.innerHTML = `<div class="card" style="margin-bottom:16px">
+    <div style="font-size:20px;font-weight:700">${myChild.name}</div>
+    <div>Lớp: <b>${myChild.class}</b> | Ngày sinh: <b>${myChild.dob}</b> | Giới tính: <b>${myChild.gender==='male'?'Nam':'Nữ'}</b></div>
+  </div>`;
+}
+// Parent Health page
+if (location.pathname.endsWith('parent-health.html')) {
+  renderParentChildCard('parent-child-card');
+  const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
+  const parentEmail = localStorage.getItem('active_email') || '';
+  const students = (DATA.students[t]||[]);
+  const myChild = students.find(s => s.parent && s.parent.email === parentEmail);
+  const dash = document.getElementById('parent-health-dashboard');
+  if (!myChild) { dash.innerHTML = ''; }
+  else {
+    // Dữ liệu sức khoẻ 6 tháng gần nhất
+    let months = ['03/2025','04/2025','05/2025','06/2025','07/2025','08/2025'];
+    let healths = months.map((m,i)=>{
+      let h = (DATA.healthAug||[]).find(r=>r[0]===myChild.id && m==='08/2025');
+      if(h) return {date:m, height:parseFloat(h[1]), weight:parseFloat(h[2]), bmi:parseFloat(h[3])};
+      // giả lập tăng dần
+      return {date:m, height:110+i*1.5, weight:17+i*0.6, bmi:parseFloat(( (17+i*0.6) / (((110+i*1.5)/100)**2)).toFixed(1))};
+    });
+    // Filter tháng
+    dash.innerHTML = `<div class="card"><b>Biểu đồ sức khoẻ 6 tháng gần nhất</b><br>
+      <label>Xem tối đa <select id='health-months'>${[2,3,4,5,6].map(n=>`<option value='${n}'>${n} tháng</option>`)}</select></label>
+      <canvas id="healthChart" width="320" height="180"></canvas>
+    </div>
+    <div class="card"><b>BMI hiện tại: ${healths[5].bmi}</b> | Chuẩn: ${myChild.gender==='male'?15.5:15.2}<br>
+      <span style='color:#1976d2'>${healths[5].bmi < (myChild.gender==='male'?15.5:15.2)?'Cần tăng cân':'Bình thường'}</span>
+    </div>`;
+    setTimeout(()=>{
+      let n = 6;
+      const draw = ()=>{
+        const ctx = document.getElementById('healthChart').getContext('2d');
+        ctx.clearRect(0,0,320,180);
+        ctx.strokeStyle = '#888'; ctx.beginPath(); ctx.moveTo(40,160); ctx.lineTo(300,160); ctx.moveTo(40,160); ctx.lineTo(40,20); ctx.stroke();
+        // Cân nặng
+        ctx.strokeStyle = '#fbc02d'; ctx.beginPath();
+        healths.slice(-n).forEach((h,i)=>{
+          const x = 40 + i*50;
+          const y = 160-h.weight*6;
+          if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+          ctx.arc(x,y,3,0,2*Math.PI); ctx.moveTo(x,y);
+        });
+        ctx.stroke();
+        ctx.fillStyle = '#fbc02d'; ctx.fillText('Cân nặng', 250, 50);
+        // Chiều cao
+        ctx.strokeStyle = '#43a047'; ctx.beginPath();
+        healths.slice(-n).forEach((h,i)=>{
+          const x = 40 + i*50;
+          const y = 160-h.height;
+          if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+          ctx.arc(x,y,3,0,2*Math.PI); ctx.moveTo(x,y);
+        });
+        ctx.stroke();
+        ctx.fillStyle = '#43a047'; ctx.fillText('Chiều cao', 250, 30);
+        healths.slice(-n).forEach((h,i)=>ctx.fillText(h.date, 40+i*50-10, 170));
+      };
+      draw();
+      document.getElementById('health-months').onchange = e=>{ n=+e.target.value; draw(); };
+    },100);
+  }
+}
+// Parent Study page
+if (location.pathname.endsWith('parent-study.html')) {
+  renderParentChildCard('parent-child-card');
+  const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
+  const parentEmail = localStorage.getItem('active_email') || '';
+  const students = (DATA.students[t]||[]);
+  const myChild = students.find(s => s.parent && s.parent.email === parentEmail);
+  const dash = document.getElementById('parent-study-dashboard');
+  if (!myChild) { dash.innerHTML = ''; }
+  else {
+    // Lịch học tuần
+    const schedule = [
+      {day:'Thứ 2',subject:'Toán, Vẽ'},
+      {day:'Thứ 3',subject:'Văn, Âm nhạc'},
+      {day:'Thứ 4',subject:'Tiếng Anh, Thể dục'},
+      {day:'Thứ 5',subject:'Khoa học, Vẽ'},
+      {day:'Thứ 6',subject:'Kỹ năng sống, Âm nhạc'}
+    ];
+    // Kỹ năng
+    const skills = [
+      {name:'Tự phục vụ',week:'Thứ 2'},
+      {name:'Giao tiếp',week:'Thứ 3'},
+      {name:'Vẽ hình',week:'Thứ 4'},
+      {name:'Nhận biết số',week:'Thứ 5'},
+      {name:'Chơi nhóm',week:'Thứ 6'}
+    ];
+    // Sự kiện
+    const events = [
+      {date:'2025-09-15',title:'Khai giảng'},
+      {date:'2025-09-20',title:'Tham quan bảo tàng'}
+    ];
+    dash.innerHTML = `
+      <div class="card"><b>Lịch học tuần này</b><table class="table" style="width:100%;margin-top:8px">
+        <tr>${schedule.map(s=>`<th>${s.day}</th>`).join('')}</tr>
+        <tr>${schedule.map(s=>`<td>${s.subject}</td>`).join('')}</tr>
+      </table></div>
+      <div class="card"><b>Kỹ năng đã học</b><ul>${skills.map(s=>`<li>${s.name} (${s.week})</li>`).join('')}</ul></div>
+      <div class="card"><b>Sự kiện sắp tới</b><ul>${events.map(e=>`<li>${e.date}: ${e.title}</li>`).join('')}</ul></div>
+    `;
+  }
+}
+// Parent Fee page
+if (location.pathname.endsWith('parent-fee.html')) {
+  renderParentChildCard('parent-child-card');
+  const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
+  const parentEmail = localStorage.getItem('active_email') || '';
+  const students = (DATA.students[t]||[]);
+  const myChild = students.find(s => s.parent && s.parent.email === parentEmail);
+  const dash = document.getElementById('parent-fee-dashboard');
+  if (!myChild) { dash.innerHTML = ''; }
+  else {
+    // Học phí 6 tháng gần nhất
+    let months = ['03/2025','04/2025','05/2025','06/2025','07/2025','08/2025'];
+    let fees = months.map((m,i)=>{
+      let inv = (DATA.invoicesAug[t]||[]).find(r=>r[0]===myChild.id && m==='08/2025');
+      if(inv) return {date:m, amount:inv[3], status:inv[3]%2===0?'Đã thanh toán':'Chưa thanh toán'};
+      // giả lập
+      let amt = 4000000+i*100000;
+      return {date:m, amount:amt, status:amt%2===0?'Đã thanh toán':'Chưa thanh toán'};
+    });
+    // Bảng kê mẫu
+    const items = [
+      {label:'Học phí tổng',amount:2000000},
+      {label:'Phí bán trú',amount:800000},
+      {label:'Cơ sở vật chất',amount:600000},
+      {label:'Môn năng khiếu',amount:200000},
+      {label:'Tiền ăn',amount:400000},
+      {label:'Ngoại khoá',amount:0},
+      {label:'Giảm học phí',amount:-200000}
+    ];
+    dash.innerHTML = `
+      <div class="card"><b>Học phí tháng 8/2025</b><br>Số tiền: <b>${fees[5].amount.toLocaleString('vi-VN')}₫</b> | Trạng thái: <span class="badge ${fees[5].status==='Đã thanh toán'?'ok':'bad'}">${fees[5].status}</span></div>
+      <div class="card"><b>Bảng kê chi tiết</b><ul>${items.map(i=>`<li>${i.label}: <b>${i.amount.toLocaleString('vi-VN')}₫</b></li>`).join('')}</ul></div>
+      <div class="card"><b>Chuyển khoản</b><br>Số tài khoản: <b>123456789</b><br>Chủ tài khoản: <b>Trường ${t==='sunshine'?'Sunshine':'Rainbow'}</b><br>Cú pháp: <b>${myChild.id} ${myChild.name} HP0825</b><br><img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=demo" style="display:block;margin:12px auto 0 auto"></div>
+      <div class="card"><b>Học phí các tháng trước</b><ul>${fees.slice(0,5).reverse().map(f=>`<li>${f.date}: <b>${f.amount.toLocaleString('vi-VN')}₫</b> <span class="badge ${f.status==='Đã thanh toán'?'ok':'bad'}">${f.status}</span></li>`).join('')}</ul></div>
+    `;
+  }
+}
 // ===== i18n strings =====
 const STR = {
   "vi-VN": {
