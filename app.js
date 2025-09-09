@@ -390,9 +390,18 @@ function renderTeacher(){
       </table>
     </div>
     <div class="card" style="margin-bottom:16px">
-      <b>Điểm danh tháng 8/2025</b>
-      <ul>${attData.map(a=>`<li>${a[0]}: ${a[2]}</li>`).join('')}</ul>
-      <button class="primary" onclick="alert('Cập nhật điểm danh thành công!')">Cập nhật điểm danh</button>
+      <b>Điểm danh hôm nay (${new Date().toLocaleDateString('vi-VN')})</b><br>
+      <div style="margin:8px 0">
+        ${(() => {
+          // Giả lập: 80% đi học, 20% nghỉ
+          const total = students.length;
+          const present = Math.round(total*0.8);
+          const absent = total - present;
+          return `<b>Đi học:</b> ${present} bé &nbsp; <b>Nghỉ:</b> ${absent} bé`;
+        })()}
+      </div>
+      <button class="primary" style="margin-right:8px" onclick="alert('Cập nhật điểm danh thành công!')">Cập nhật điểm danh</button>
+      <button class="primary" onclick="alert('Cập nhật sức khoẻ thành công!')">Cập nhật Sức khoẻ</button>
     </div>
     <div class="card">
       <b>Nhận xét & ghi chú từ admin</b>
