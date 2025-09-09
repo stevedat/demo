@@ -245,28 +245,20 @@ const DATA = {
   },
   students: {
     sunshine:[
-      {id:"S1",name:"Nguyen Gia Bao",class:"KGA",gender:"male",dob:"2019-03-15",parent:{id:"P1",name:"Pham Van Binh",email:"binh.parent.sunshine@example.com"},
-        allergies:"Không", notes:"Ăn ngoan, thích vẽ", address:"12 Lê Lợi, Q.1", phone:"0901234567"},
-      {id:"S2",name:"Tran My An",class:"KGA",gender:"female",dob:"2019-07-22",parent:{id:"P2",name:"Tran Thi Lan",email:"lan.parent.sunshine@example.com"},
-        allergies:"Trứng", notes:"Cần chú ý khi vận động", address:"34 Nguyễn Huệ, Q.1", phone:"0902345678"},
-      {id:"S3",name:"Le Quang Huy",class:"KGA",gender:"male",dob:"2018-11-05",parent:{id:"P3",name:"Le Van Son",email:"son.parent.sunshine@example.com"},
-        allergies:"Không", notes:"Thích toán, hơi nhút nhát", address:"56 Pasteur, Q.3", phone:"0903456789"},
-      {id:"S4",name:"Pham Minh Chau",class:"KGB",gender:"female",dob:"2019-01-30",parent:{id:"P4",name:"Pham Thi Dao",email:"dao.parent.sunshine@example.com"},
-        allergies:"Sữa", notes:"Năng động, thích múa", address:"78 Hai Bà Trưng, Q.1", phone:"0904567890"},
-      {id:"S5",name:"Do Bao Han",class:"KGB",gender:"female",dob:"2018-09-18",parent:{id:"P5",name:"Do Van Hieu",email:"hieu.parent.sunshine@example.com"},
-        allergies:"Không", notes:"Chăm chỉ, thích đọc truyện", address:"90 Lý Tự Trọng, Q.1", phone:"0905678901"}
+      {id:"S1",name:"Nguyen Gia Bao",class:"KGA",gender:"male",dob:"2019-03-15",parent:{id:"P1",name:"Pham Van Binh",email:"binh.parent.sunshine@example.com"}, allergies:"Không", notes:"Ăn ngoan, thích vẽ", address:"12 Lê Lợi, Q.1", phone:"0901234567"},
+      {id:"S2",name:"Tran My An",class:"KGA",gender:"female",dob:"2019-07-22",parent:{id:"P2",name:"Tran Thi Lan",email:"lan.parent.sunshine@example.com"}, allergies:"Trứng", notes:"Cần chú ý khi vận động", address:"34 Nguyễn Huệ, Q.1", phone:"0902345678"},
+      {id:"S3",name:"Le Quang Huy",class:"KGA",gender:"male",dob:"2018-11-05",parent:{id:"P3",name:"Le Van Son",email:"son.parent.sunshine@example.com"}, allergies:"Không", notes:"Thích toán, hơi nhút nhát", address:"56 Pasteur, Q.3", phone:"0903456789"},
+      {id:"S4",name:"Pham Minh Chau",class:"KGB",gender:"female",dob:"2019-01-30",parent:{id:"P4",name:"Pham Thi Dao",email:"dao.parent.sunshine@example.com"}, allergies:"Sữa", notes:"Năng động, thích múa", address:"78 Hai Bà Trưng, Q.1", phone:"0904567890"},
+      {id:"S5",name:"Do Bao Han",class:"KGB",gender:"female",dob:"2018-09-18",parent:{id:"P5",name:"Do Van Hieu",email:"hieu.parent.sunshine@example.com"}, allergies:"Không", notes:"Chăm chỉ, thích đọc truyện", address:"90 Lý Tự Trọng, Q.1", phone:"0905678901"},
+      {id:"S6",name:"Nguyen Nhat Nam",class:"KGB",gender:"male",dob:"2019-05-10",parent:{id:"P6",name:"Nguyen Thi Hoa",email:"hoa.parent.sunshine@example.com"}, allergies:"Không", notes:"Thích bóng đá", address:"11 Nguyễn Đình Chiểu, Q.3", phone:"0906789012"}
     ],
     rainbow:[
-      {id:"R1S1",name:"Nguyen Minh Khoa",class:"R1",gender:"male",dob:"2019-04-10",parent:{id:"RP1",name:"Nguyen Van Cuong",email:"cuong.parent.rainbow@example.com"},
-        allergies:"Không", notes:"Thích thể thao", address:"12 Lê Lợi, Q.5", phone:"0911234567"},
-      {id:"R1S2",name:"Tran Bao Chau",class:"R1",gender:"female",dob:"2019-08-12",parent:{id:"RP2",name:"Tran Thi Mai",email:"mai.parent.rainbow@example.com"},
-        allergies:"Tôm", notes:"Vui vẻ, thích hát", address:"34 Nguyễn Huệ, Q.5", phone:"0912345678"},
-      {id:"R2S1",name:"Le Quoc Duy",class:"R2",gender:"male",dob:"2018-12-01",parent:{id:"RP3",name:"Le Van Tien",email:"tien.parent.rainbow@example.com"},
-        allergies:"Không", notes:"Thích vẽ, thích toán", address:"56 Pasteur, Q.5", phone:"0913456789"},
-      {id:"R2S2",name:"Pham Minh Anh",class:"R2",gender:"female",dob:"2019-02-25",parent:{id:"RP4",name:"Pham Thi Hoa",email:"hoa.parent.rainbow@example.com"},
-        allergies:"Không", notes:"Năng động, thích múa", address:"78 Hai Bà Trưng, Q.5", phone:"0914567890"},
-      {id:"R2S3",name:"Do Bao Linh",class:"R2",gender:"female",dob:"2018-10-20",parent:{id:"RP5",name:"Do Van Phuc",email:"phuc.parent.rainbow@example.com"},
-        allergies:"Không", notes:"Chăm chỉ, thích đọc truyện", address:"90 Lý Tự Trọng, Q.5", phone:"0915678901"}
+      {id:"R1S1",name:"Nguyen Minh Khoa",class:"R1",gender:"male",dob:"2019-04-10",parent:{id:"RP1",name:"Nguyen Van Cuong",email:"cuong.parent.rainbow@example.com"}, allergies:"Không", notes:"Thích thể thao", address:"12 Lê Lợi, Q.5", phone:"0911234567"},
+      {id:"R1S2",name:"Tran Bao Chau",class:"R1",gender:"female",dob:"2019-08-12",parent:{id:"RP2",name:"Tran Thi Mai",email:"mai.parent.rainbow@example.com"}, allergies:"Tôm", notes:"Vui vẻ, thích hát", address:"34 Nguyễn Huệ, Q.5", phone:"0912345678"},
+      {id:"R2S1",name:"Le Quoc Duy",class:"R2",gender:"male",dob:"2018-12-01",parent:{id:"RP3",name:"Le Van Tien",email:"tien.parent.rainbow@example.com"}, allergies:"Không", notes:"Thích vẽ, thích toán", address:"56 Pasteur, Q.5", phone:"0913456789"},
+      {id:"R2S2",name:"Pham Minh Anh",class:"R2",gender:"female",dob:"2019-02-25",parent:{id:"RP4",name:"Pham Thi Hoa",email:"hoa.parent.rainbow@example.com"}, allergies:"Không", notes:"Năng động, thích múa", address:"78 Hai Bà Trưng, Q.5", phone:"0914567890"},
+      {id:"R2S3",name:"Do Bao Linh",class:"R2",gender:"female",dob:"2018-10-20",parent:{id:"RP5",name:"Do Van Phuc",email:"phuc.parent.rainbow@example.com"}, allergies:"Không", notes:"Chăm chỉ, thích đọc truyện", address:"90 Lý Tự Trọng, Q.5", phone:"0915678901"},
+      {id:"R2S4",name:"Hoang Gia Huy",class:"R2",gender:"male",dob:"2019-06-15",parent:{id:"RP6",name:"Hoang Thi Dao",email:"dao.parent.rainbow@example.com"}, allergies:"Không", notes:"Thích piano", address:"22 Nguyễn Văn Cừ, Q.5", phone:"0916789012"}
     ]
   },
   invoicesAug: {
@@ -382,15 +374,18 @@ function showAccountInfo() {
   }
   translate();
 
-  // Sign out always redirects to /login.html
-  const signout = document.getElementById('signout');
-  if (signout) signout.onclick=()=>{
-    localStorage.removeItem('active_role');
-    localStorage.removeItem('active_tenant');
-    localStorage.removeItem('active_email');
-    localStorage.removeItem('active_locale');
-    location.href='login.html';
-  };
+  // Đảm bảo nút đăng xuất trên tất cả các trang đều redirect về login.html
+  setTimeout(()=>{
+    document.querySelectorAll('#signout').forEach(signout=>{
+      signout.onclick=()=>{
+        localStorage.removeItem('active_role');
+        localStorage.removeItem('active_tenant');
+        localStorage.removeItem('active_email');
+        localStorage.removeItem('active_locale');
+        location.href='login.html';
+      };
+    });
+  }, 200);
 
   const tenantSel = document.getElementById('tenant');
   if (tenantSel) {
@@ -496,58 +491,6 @@ function renderPlatform(){
         t.admin?.name||''
       ])
     ).join('');
-  // Hàm đổi trạng thái state
-  window.updateTenantState = (code, state) => {
-    const ten = DATA.tenants.find(x=>x.code===code);
-    if(ten) ten.state = state;
-  };
-}
-
-function renderAdmin(){
-  const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
-  const tenant = DATA.tenants.find(x=>x.code===t);
-  // Bổ sung dữ liệu demo nếu thiếu
-  if (!DATA.classes[t]) DATA.classes[t] = [
-    {code:t+"A",name:"Lớp A",block:"kindergarten",teacher:{id:"T1",name:"GV 1",email:"teacher1."+t+"@example.com"}},
-    {code:t+"B",name:"Lớp B",block:"preparatory",teacher:{id:"T2",name:"GV 2",email:"teacher2."+t+"@example.com"}}
-  ];
-  if (!DATA.students[t]) DATA.students[t] = [];
-  if (!DATA.invoicesAug[t]) DATA.invoicesAug[t] = [];
-  if (!DATA.expensesAug[t]) DATA.expensesAug[t] = [];
-  // Tổng số lớp, tổng số học sinh, tổng học sinh theo lớp
-  const classes = DATA.classes[t];
-  const students = (DATA.students[t]||[]).concat(loadCustomStudents(t).filter(s=>s.tenant_id===t));
-  const totalClasses = classes.length;
-  const totalStudents = students.length;
-  const studentsByClass = classes.map(c=>({class:c.code, count:students.filter(s=>s.class===c.code).length}));
-  // Tổng thu học phí toàn trường, theo lớp, còn chưa thu
-  const invoices = DATA.invoicesAug[t]||[];
-  const totalFee = invoices.reduce((a,b)=>a+(b[3]||0),0);
-  const feeByClass = classes.map(c=>({class:c.code, sum:invoices.filter(i=>i[2]===c.code).reduce((a,b)=>a+(b[3]||0),0)}));
-  const unpaid = invoices.filter(i=>i[3]%2!==0).reduce((a,b)=>a+(b[3]||0),0);
-  // Tổng chi tháng, chi giáo viên, chi các môn học
-  const expenses = DATA.expensesAug[t]||[];
-  const totalExpense = expenses.reduce((a,b)=>a+(b[2]||0),0);
-  const teacherExpense = expenses.filter(e=>e[0]==='StaffCost').reduce((a,b)=>a+(b[2]||0),0);
-  const subjectExpense = expenses.filter(e=>e[0]==='TeachingMaterial'||e[0]==='Language'||e[0]==='Talent').reduce((a,b)=>a+(b[2]||0),0);
-  // Tổng chi phí thức ăn, giáo cụ & học liệu
-  const foodExpense = expenses.filter(e=>e[0]==='Food').reduce((a,b)=>a+(b[2]||0),0);
-  const supplyExpense = expenses.filter(e=>e[0]==='TeachingMaterial').reduce((a,b)=>a+(b[2]||0),0);
-  // Lịch hoạt động sắp tới (demo)
-  const events = [
-    {date:'2025-09-15',title:'Khai giảng năm học mới',scope:'Trường'},
-    {date:'2025-09-20',title:'Tham quan bảo tàng',scope:'Lớp '+classes[0].code},
-    {date:'2025-09-25',title:'Ngày hội thể thao',scope:'Trường'}
-  ];
-  // Card view
-  const kpis = document.getElementById('tenant-kpis');
-  kpis.innerHTML = [
-    `<div class="card"><b>Tổng số lớp:</b> ${totalClasses}<br><b>Tổng số học sinh:</b> ${totalStudents}<br>${studentsByClass.map(s=>`<div>Lớp ${s.class}: <b>${s.count}</b></div>`).join('')}</div>`,
-    `<div class="card"><b>Tổng thu học phí:</b> ${fmt(totalFee)}₫<br>${feeByClass.map(f=>`<div>Lớp ${f.class}: <b>${fmt(f.sum)}₫</b></div>`).join('')}<br><b>Học phí chưa thu:</b> ${fmt(unpaid)}₫</div>`,
-    `<div class="card"><b>Tổng chi tháng:</b> ${fmt(totalExpense)}₫<br><b>Chi giáo viên:</b> ${fmt(teacherExpense)}₫<br><b>Chi các môn học:</b> ${fmt(subjectExpense)}₫</div>`,
-    `<div class="card"><b>Chi phí thức ăn:</b> ${fmt(foodExpense)}₫<br><b>Chi giáo cụ & học liệu:</b> ${fmt(supplyExpense)}₫</div>`,
-    `<div class="card"><b>Lịch hoạt động sắp tới</b><ul>${events.map(e=>`<li>${e.date}: ${e.title} (${e.scope})</li>`).join('')}</ul></div>`
-  ].join('');
 
   // Students list = base + custom, filtered by tenant_id
   const st = document.getElementById('students-table');
