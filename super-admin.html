@@ -7,7 +7,7 @@
   <link href="styles.css" rel="stylesheet">
   <script defer src="app.js"></script>
 </head>
-<body data-page="super-admin">
+<body data-page="super-admin" data-required-role="super_admin">
   <header class="topbar">
     <div class="brand">Kindy Demo</div>
     <div class="controls">
@@ -18,9 +18,7 @@
 
   <main class="container">
     <h1 data-i18n="platform_title">Nền tảng (Super Admin)</h1>
-
     <section class="grid kpis" id="platform-kpis"></section>
-
     <section class="card">
       <h2 data-i18n="tenants">Tenants</h2>
       <table id="tenant-table" class="table"></table>

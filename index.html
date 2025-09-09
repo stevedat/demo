@@ -55,6 +55,7 @@
       const loc = document.getElementById('locale').value;
       localStorage.setItem('active_locale', loc);
       localStorage.setItem('active_tenant', t);
+      localStorage.setItem('active_role', r);
       const route = {
         super_admin: 'super-admin.html',
         tenant_admin: 'admin.html',

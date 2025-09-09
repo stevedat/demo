@@ -20,3 +20,4 @@ button{cursor:pointer} .primary{background:var(--pri);border:0;color:#051027;fon
 .badge.bad{background:rgba(255,107,107,.15);color:#ff6b6b}
 .footer{opacity:.6;text-align:center;padding:24px}
 .bullets{margin:0;padding-left:18px}
+.toast{position:fixed;right:16px;bottom:16px;background:#0c152c;border:1px solid #2a3b67;border-radius:10px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.25)}

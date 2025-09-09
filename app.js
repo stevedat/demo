@@ -5,128 +5,65 @@ const STR = {
     platform_title:"Nền tảng (Super Admin)", tenants:"Tenants",
     admin_title:"Bảng điều khiển (Tenant Admin)", students:"Học sinh", invoices:"Hóa đơn 08/2025", expenses:"Chi phí 08/2025", policies:"Chính sách tính phí",
     teacher_title:"Giáo viên (lớp được phân công)", attendance_aug:"Attendance 08/2025 (tóm tắt)", health_trend:"Sức khỏe (W/H/BMI)", learning_skills:"Nhận xét & Kỹ năng (08/2025)",
-    parent_title:"Phụ huynh", my_children:"Con của tôi", my_invoices:"Hóa đơn 08/2025", attendance_mini:"Attendance tóm tắt"
+    parent_title:"Phụ huynh", my_children:"Con của tôi", my_invoices:"Hóa đơn 08/2025", attendance_mini:"Attendance tóm tắt",
+    add_student_title:"Thêm học sinh mới", student_name:"Họ và tên", student_class:"Lớp", student_gender:"Giới tính", student_dob:"Ngày sinh", add_student_btn:"Thêm học sinh",
+    add_success:"Đã thêm học sinh mới", guard_denied:"Bạn không có quyền truy cập trang này. Đang quay về trang đăng nhập…"
   },
   "en-US": {
     login_title:"Sign in", tenant:"Tenant (School)", role:"Role", email:"Email", password:"Password", signin:"Sign in", signout:"Sign out", note_mock:"Static demo: no real auth.",
     platform_title:"Platform (Super Admin)", tenants:"Tenants",
     admin_title:"Dashboard (Tenant Admin)", students:"Students", invoices:"Invoices Aug/2025", expenses:"Expenses Aug/2025", policies:"Billing Policies",
     teacher_title:"Teacher (assigned classes)", attendance_aug:"Attendance Aug/2025 (summary)", health_trend:"Health (W/H/BMI)", learning_skills:"Learning & Skills (Aug/2025)",
-    parent_title:"Parent", my_children:"My Children", my_invoices:"Invoices Aug/2025", attendance_mini:"Attendance summary"
+    parent_title:"Parent", my_children:"My Children", my_invoices:"Invoices Aug/2025", attendance_mini:"Attendance summary",
+    add_student_title:"Add new student", student_name:"Full name", student_class:"Class", student_gender:"Gender", student_dob:"Date of birth", add_student_btn:"Add student",
+    add_success:"New student added", guard_denied:"You are not authorized for this page. Redirecting to login…"
   }
 };
 
-// ===== tiny helper =====
 const qs = (k)=>new URLSearchParams(location.search).get(k);
 const fmt = (n)=>n.toLocaleString('vi-VN');
+const uid = ()=>'S'+Math.random().toString(36).slice(2,8).toUpperCase();
 
-// ===== mock data (subset từ spec) =====
+function updateQuery(kv){
+  const p=new URLSearchParams(location.search);
+  Object.entries(kv).forEach(([k,v])=>p.set(k,v));
+  return '?'+p.toString();
+}
+function getLocale(){ return qs('locale') || localStorage.getItem('active_locale') || 'vi-VN'; }
+function translate(){
+  const loc = getLocale();
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n'); el.textContent = STR[loc][key] || el.textContent;
+  });
+}
+
 const DATA = {
   tenants: [
     { code:"sunshine", name:"Sunshine Kindergarten", state:"active", students:10, revenue:44090000, expense:45256000 },
     { code:"rainbow", name:"Rainbow School", state:"pending", students:0, revenue:0, expense:0 }
   ],
-  classes: {
-    sunshine: [
-      { code:"KGA", name:"Kindergarten A", block:"kindergarten", teacher:"T1" },
-      { code:"KGB", name:"Kindergarten B", block:"preparatory", teacher:"T2" }
-    ]
-  },
-  students: {
-    sunshine: [
-      { id:"S1", name:"Nguyen Gia Bao", class:"KGA" },
-      { id:"S2", name:"Tran My An", class:"KGA" },
-      { id:"S3", name:"Le Quang Huy", class:"KGA" },
-      { id:"S4", name:"Pham Minh Chau", class:"KGA" },
-      { id:"S5", name:"Do Bao Han", class:"KGA" },
-      { id:"S6", name:"Nguyen Nhat Nam", class:"KGB" },
-      { id:"S7", name:"Hoang Quynh", class:"KGB" },
-      { id:"S8", name:"Vo Thanh Long", class:"KGB" },
-      { id:"S9", name:"Phan Bao Tram", class:"KGB" },
-      { id:"S10",name:"Dang Gia Han", class:"KGB" }
-    ]
-  },
-  invoicesAug: {
-    sunshine: [
-      ["S1","Nguyen Gia Bao","KGA",4230000],
-      ["S2","Tran My An","KGA",4210000],
-      ["S3","Le Quang Huy","KGA",4100000],
-      ["S4","Pham Minh Chau","KGA",4320000],
-      ["S5","Do Bao Han","KGA",3940000],
-      ["S6","Nguyen Nhat Nam","KGB",4820000],
-      ["S7","Hoang Quynh","KGB",4650000],
-      ["S8","Vo Thanh Long","KGB",4790000],
-      ["S9","Phan Bao Tram","KGB",4440000],
-      ["S10","Dang Gia Han","KGB",4590000]
-    ]
-  },
-  expensesAug: {
-    sunshine: [
-      ["Food","192 meals × 18,000",3456000],
-      ["TeachingMaterial","Books & supplies",1000000],
-      ["StaffCost","Teachers salaries",24000000],
-      ["Operations","Utilities & rent",14000000],
-      ["Marketing","Aug campaigns",2500000],
-      ["Medical","Consumables",300000]
-    ]
-  },
-  policies: [
-    "Absent = not_charge (no session, no meal)",
-    "Late = meal_deduction (session charged, meal not charged)",
-    "Invoice = Tuition + Meals + Language/Talent + Facility + Event",
-    "Discounts: sibling / scholarship / custom"
-  ],
-  attendanceSummaryAug: [
-    ["S1","KGA","Absent: 07/08 | Late: 05/08"],
-    ["S2","KGA","Absent: 20/08 | Late: –"],
-    ["S3","KGA","Absent: 21/08 | Late: 05/08, 13/08"],
-    ["S4","KGA","Absent: – | Late: –"],
-    ["S5","KGA","Absent: 07/08, 20/08, 29/08 | Late: 12/08"],
-    ["S6","KGB","Absent: – | Late: –"],
-    ["S7","KGB","Absent: 21/08 | Late: 06/08"],
-    ["S8","KGB","Absent: 19/08 | Late: –"],
-    ["S9","KGB","Absent: 07/08 | Late: 05/08, 14/08"],
-    ["S10","KGB","Absent: 08/08, 18/08, 27/08 | Late: 13/08"]
-  ],
-  healthAug: [
-    ["S1","114.5 cm","20.5 kg","15.6"],
-    ["S2","113.5 cm","19.6 kg","15.2"],
-    ["S3","115.5 cm","20.8 kg","15.6"],
-    ["S4","114.5 cm","20.2 kg","15.4"],
-    ["S5","112.5 cm","19.3 kg","15.3"],
-    ["S6","117.5 cm","21.6 kg","15.6"],
-    ["S7","116.5 cm","21.0 kg","15.4"],
-    ["S8","117.5 cm","21.4 kg","15.5"],
-    ["S9","115.5 cm","20.3 kg","15.2"],
-    ["S10","116.5 cm","20.9 kg","15.4"]
-  ],
-  skillsAug: [
-    ["S1","phonics_recognition",4,"Shares actively"],
-    ["S2","cutting_shapes",4,"Good circles"],
-    ["S3","basic_vocabulary",4,"Topic words"],
-    ["S4","phonics_recognition",5,"Model for class"],
-    ["S5","pencil_grip",3,"Improve posture"],
-    ["S6","sight_words",4,"~30 words"],
-    ["S7","self_care",4,"Cleans up"],
-    ["S8","write_letters",4,"Even strokes"],
-    ["S9","simple_sentences",3,"Needs confidence"],
-    ["S10","teamwork",4,"Positive interactions"]
-  ],
-  parentChildren: {
-    // parent demo sees S4 + S5
-    sunshine: [
-      ["S4","Pham Minh Chau","KGA"],
-      ["S5","Do Bao Han","KGA"]
-    ]
-  }
+  classes: { sunshine:[{code:"KGA",name:"Kindergarten A",block:"kindergarten",teacher:"T1"},{code:"KGB",name:"Kindergarten B",block:"preparatory",teacher:"T2"}], rainbow:[{code:"R1",name:"Rainbow A",block:"kindergarten",teacher:"T9"}] },
+  students: { sunshine:[{id:"S1",name:"Nguyen Gia Bao",class:"KGA"},{id:"S2",name:"Tran My An",class:"KGA"},{id:"S3",name:"Le Quang Huy",class:"KGA"},{id:"S4",name:"Pham Minh Chau",class:"KGA"},{id:"S5",name:"Do Bao Han",class:"KGA"},{id:"S6",name:"Nguyen Nhat Nam",class:"KGB"},{id:"S7",name:"Hoang Quynh",class:"KGB"},{id:"S8",name:"Vo Thanh Long",class:"KGB"},{id:"S9",name:"Phan Bao Tram",class:"KGB"},{id:"S10",name:"Dang Gia Han",class:"KGB"}], rainbow:[] },
+  invoicesAug: { sunshine:[["S1","Nguyen Gia Bao","KGA",4230000],["S2","Tran My An","KGA",4210000],["S3","Le Quang Huy","KGA",4100000],["S4","Pham Minh Chau","KGA",4320000],["S5","Do Bao Han","KGA",3940000],["S6","Nguyen Nhat Nam","KGB",4820000],["S7","Hoang Quynh","KGB",4650000],["S8","Vo Thanh Long","KGB",4790000],["S9","Phan Bao Tram","KGB",4440000],["S10","Dang Gia Han","KGB",4590000]] },
+  expensesAug: { sunshine:[["Food","192 meals × 18,000",3456000],["TeachingMaterial","Books & supplies",1000000],["StaffCost","Teachers salaries",24000000],["Operations","Utilities & rent",14000000],["Marketing","Aug campaigns",2500000],["Medical","Consumables",300000]] },
+  policies: ["Absent = not_charge (no session, no meal)","Late = meal_deduction (session charged, meal not charged)","Invoice = Tuition + Meals + Language/Talent + Facility + Event","Discounts: sibling / scholarship / custom"],
+  attendanceSummaryAug: [["S1","KGA","Absent: 07/08 | Late: 05/08"],["S2","KGA","Absent: 20/08 | Late: –"],["S3","KGA","Absent: 21/08 | Late: 05/08, 13/08"],["S4","KGA","Absent: – | Late: –"],["S5","KGA","Absent: 07/08, 20/08, 29/08 | Late: 12/08"],["S6","KGB","Absent: – | Late: –"],["S7","KGB","Absent: 21/08 | Late: 06/08"],["S8","KGB","Absent: 19/08 | Late: –"],["S9","KGB","Absent: 07/08 | Late: 05/08, 14/08"],["S10","KGB","Absent: 08/08, 18/08, 27/08 | Late: 13/08"]],
+  healthAug: [["S1","114.5 cm","20.5 kg","15.6"],["S2","113.5 cm","19.6 kg","15.2"],["S3","115.5 cm","20.8 kg","15.6"],["S4","114.5 cm","20.2 kg","15.4"],["S5","112.5 cm","19.3 kg","15.3"],["S6","117.5 cm","21.6 kg","15.6"],["S7","116.5 cm","21.0 kg","15.4"],["S8","117.5 cm","21.4 kg","15.5"],["S9","115.5 cm","20.3 kg","15.2"],["S10","116.5 cm","20.9 kg","15.4"]],
+  skillsAug: [["S1","phonics_recognition",4,"Shares actively"],["S2","cutting_shapes",4,"Good circles"],["S3","basic_vocabulary",4,"Topic words"],["S4","phonics_recognition",5,"Model for class"],["S5","pencil_grip",3,"Improve posture"],["S6","sight_words",4,"~30 words"],["S7","self_care",4,"Cleans up"],["S8","write_letters",4,"Even strokes"],["S9","simple_sentences",3,"Needs confidence"],["S10","teamwork",4,"Positive interactions"]],
+  parentChildren: { sunshine:[["S4","Pham Minh Chau","KGA"],["S5","Do Bao Han","KGA"]] }
 };
 
-// ===== page bootstrap =====
+function lsKeyStudents(t){ return `kindy_custom_${t}_students`; }
+function loadCustomStudents(t){ try { return JSON.parse(localStorage.getItem(lsKeyStudents(t))||'[]'); } catch(e){ return []; } }
+function saveCustomStudents(t, arr){ localStorage.setItem(lsKeyStudents(t), JSON.stringify(arr)); }
+
 (function init(){
   const page = document.body.dataset.page;
+  const requiredRole = document.body.dataset.requiredRole || null;
+
   const localeSel = document.getElementById('locale');
   if (localeSel) {
-    const loc = qs('locale') || localStorage.getItem('active_locale') || 'vi-VN';
+    const loc = getLocale();
     ['vi-VN','en-US'].forEach(l=>{
       const o=document.createElement('option'); o.value=l; o.textContent=(l==='vi-VN'?'Tiếng Việt':'English');
       if(l===loc) o.selected=true; localeSel.appendChild(o);
@@ -141,34 +78,29 @@ const DATA = {
   const tenantSel = document.getElementById('tenant');
   if (tenantSel) {
     const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
-    ['sunshine','rainbow'].forEach(code=>{
+    const list = DATA.tenants.map(x=>x.code);
+    list.forEach(code=>{
       const o=document.createElement('option'); o.value=code; o.textContent=DATA.tenants.find(x=>x.code===code).name;
       if(code===t) o.selected=true; tenantSel.appendChild(o);
     });
     tenantSel.onchange=()=>{ localStorage.setItem('active_tenant', tenantSel.value); location.search = updateQuery({tenant:tenantSel.value}); };
   }
 
-  // route page renders
+  if (requiredRole){
+    const role = qs('role') || localStorage.getItem('active_role');
+    if (role !== requiredRole){
+      toast(STR[getLocale()].guard_denied);
+      setTimeout(()=>location.href='index.html', 1200);
+      return;
+    }
+  }
+
   if (page==='super-admin') renderPlatform();
   if (page==='admin') renderAdmin();
   if (page==='teacher') renderTeacher();
   if (page==='parent') renderParent();
 })();
 
-function updateQuery(kv){
-  const p=new URLSearchParams(location.search);
-  Object.entries(kv).forEach(([k,v])=>p.set(k,v));
-  return '?'+p.toString();
-}
-
-function translate(){
-  const loc = qs('locale') || localStorage.getItem('active_locale') || 'vi-VN';
-  document.querySelectorAll('[data-i18n]').forEach(el=>{
-    const key = el.getAttribute('data-i18n'); el.textContent = STR[loc][key] || el.textContent;
-  });
-}
-
-// ===== renderers =====
 function renderPlatform(){
   const kpis = document.getElementById('platform-kpis');
   kpis.innerHTML = DATA.tenants.map(t => cardKPI(t.name, [
@@ -185,10 +117,9 @@ function renderPlatform(){
 
 function renderAdmin(){
   const t = qs('tenant') || 'sunshine';
-  const kpis = document.getElementById('tenant-kpis');
-  // P&L = IN - OUT (from mock)
   const tenant = DATA.tenants.find(x=>x.code===t);
   const pnl = tenant.revenue - tenant.expense;
+  const kpis = document.getElementById('tenant-kpis');
   kpis.innerHTML = [
     cardMini("Students", tenant.students),
     cardMini("Revenue Aug", fmt(tenant.revenue)+"₫"),
@@ -196,24 +127,48 @@ function renderAdmin(){
     cardMini("P&L Aug", (pnl>=0?'+':'')+fmt(pnl)+"₫", pnl>=0?'ok':'bad')
   ].join('');
 
+  // Students list = base + custom
   const st = document.getElementById('students-table');
-  const studs = DATA.students[t];
+  const custom = loadCustomStudents(t);
+  const studs = (DATA.students[t]||[]).concat(custom);
   st.innerHTML = thead(['ID','Name','Class']) + studs.map(s=>tr([s.id, s.name, s.class])).join('');
 
+  // Invoices
   const inv = document.getElementById('invoices-table');
   inv.innerHTML = thead(['ID','Name','Class','Total']) +
-    DATA.invoicesAug[t].map(r=>tr([r[0], r[1], r[2], fmt(r[3])+'₫'])).join('');
+    (DATA.invoicesAug[t]||[]).map(r=>tr([r[0], r[1], r[2], fmt(r[3])+'₫'])).join('');
 
+  // Expenses
   const ex = document.getElementById('expenses-table');
   ex.innerHTML = thead(['Category','Detail','Amount']) +
-    DATA.expensesAug[t].map(r=>tr([r[0], r[1], fmt(r[2])+'₫'])).join('');
+    (DATA.expensesAug[t]||[]).map(r=>tr([r[0], r[1], fmt(r[2])+'₫'])).join('');
 
+  // Policies
   const pl = document.getElementById('policy-list');
   pl.innerHTML = DATA.policies.map(p=>`<li>${p}</li>`).join('');
+
+  // Add student form
+  const classSel = document.getElementById('new-student-class');
+  classSel.innerHTML = (DATA.classes[t]||[]).map(c=>`<option value="${c.code}">${c.name} (${c.code})</option>`).join('');
+
+  document.getElementById('add-student').onclick = ()=>{
+    const name = (document.getElementById('new-student-name').value||'').trim();
+    const cls = document.getElementById('new-student-class').value;
+    const gender = document.getElementById('new-student-gender').value;
+    const dob = document.getElementById('new-student-dob').value || null;
+    if (!name || !cls){ toast("Tên và Lớp là bắt buộc / Name & Class required"); return; }
+
+    const id = uid();
+    const newStu = { id, name, class: cls, gender, dob, tenant_id: t };
+    const arr = loadCustomStudents(t); arr.push(newStu); saveCustomStudents(t, arr);
+
+    const studs2 = (DATA.students[t]||[]).concat(arr);
+    document.getElementById('students-table').innerHTML = thead(['ID','Name','Class']) + studs2.map(s=>tr([s.id, s.name, s.class])).join('');
+    toast(STR[getLocale()].add_success + `: ${newStu.id} – ${newStu.name}`);
+  };
 }
 
 function renderTeacher(){
-  const t = qs('tenant') || 'sunshine';
   const att = document.getElementById('attendance-table');
   att.innerHTML = thead(['ID','Class','Summary']) +
     DATA.attendanceSummaryAug.map(r=>tr([r[0], r[1], r[2]])).join('');
@@ -258,4 +213,10 @@ function badgeState(s){
   const m = {active:'ok',pending:'warn',off:'bad',archived:'bad'};
   const k = m[s]||'';
   return `<span class="badge ${k}">${s.toUpperCase()}</span>`;
+}
+function toast(msg){
+  const el = document.createElement('div');
+  el.className = 'toast'; el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(()=>{ el.remove(); }, 1800);
 }
