@@ -7,7 +7,7 @@
 </head>
 <body data-page="login">
   <div class="login-container">
-    <h2 data-i18n="login_title">Đăng nhập</h2>
+  <h2>Đăng nhập</h2>
     <div id="quick-login">
       <h3>Chọn tài khoản để đăng nhập nhanh</h3>
       <ul style="list-style:none;padding:0">
@@ -20,8 +20,8 @@
         <li><button class="quick-btn" data-role="parent" data-tenant="rainbow" data-email="cuong.parent.rainbow@example.com">Parent - Rainbow</button></li>
       </ul>
     </div>
-    <div style="margin-top:10px;font-size:12px;color:#888" data-i18n="note_mock">Demo tĩnh: không kiểm tra tài khoản thật.</div>
-    <select id="locale" style="margin-top:10px;"></select>
+  <div style="margin-top:10px;font-size:12px;color:#888">Demo tĩnh: không kiểm tra tài khoản thật.</div>
+  <!-- Đã xoá chọn ngôn ngữ, chỉ dùng tiếng Việt -->
   </div>
     <script>
     // Đăng nhập nhanh khi chọn tài khoản mẫu
@@ -30,8 +30,7 @@
         const role = btn.getAttribute('data-role');
         const tenant = btn.getAttribute('data-tenant');
         const email = btn.getAttribute('data-email');
-        const loc = 'vi-VN';
-        localStorage.setItem('active_locale', loc);
+  // Đã xoá logic locale, chỉ dùng tiếng Việt
         localStorage.setItem('active_tenant', tenant);
         localStorage.setItem('active_role', role);
         localStorage.setItem('active_email', email);
@@ -41,8 +40,8 @@
           teacher: 'teacher.html',
           parent: 'parent.html'
         }[role];
-        const qs = `?tenant=${encodeURIComponent(tenant)}&role=${encodeURIComponent(role)}&locale=${encodeURIComponent(loc)}`;
-        window.location.href = route + qs;
+  const qs = `?tenant=${encodeURIComponent(tenant)}&role=${encodeURIComponent(role)}`;
+  window.location.href = route + qs;
       };
     });
     </script>

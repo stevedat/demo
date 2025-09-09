@@ -189,29 +189,6 @@ if (location.pathname.endsWith('parent-fee.html')) {
     },100);
   }
 }
-// ===== i18n strings =====
-const STR = {
-  "vi-VN": {
-    login_title:"Đăng nhập", tenant:"Trường (Tenant)", role:"Vai trò", email:"Email", password:"Mật khẩu", signin:"Đăng nhập", signout:"Đăng xuất", note_mock:"Demo tĩnh: không kiểm tra tài khoản thật.",
-    platform_title:"Nền tảng (Super Admin)", tenants:"Tenants",
-    admin_title:"Bảng điều khiển (Tenant Admin)", students:"Học sinh", invoices:"Hóa đơn 08/2025", expenses:"Chi phí 08/2025", policies:"Chính sách tính phí",
-    teacher_title:"Giáo viên (lớp được phân công)", attendance_aug:"Attendance 08/2025 (tóm tắt)", health_trend:"Sức khỏe (W/H/BMI)", learning_skills:"Nhận xét & Kỹ năng (08/2025)",
-    parent_title:"Phụ huynh", my_children:"Con của tôi", my_invoices:"Hóa đơn 08/2025", attendance_mini:"Attendance tóm tắt",
-    add_student_title:"Thêm học sinh mới", student_name:"Họ và tên", student_class:"Lớp", student_gender:"Giới tính", student_dob:"Ngày sinh", add_student_btn:"Thêm học sinh",
-    add_success:"Đã thêm học sinh mới", guard_denied:"Bạn không có quyền truy cập trang này. Đang quay về trang đăng nhập…"
-  },
-  "en-US": {
-    login_title:"Sign in", tenant:"Tenant (School)", role:"Role", email:"Email", password:"Password", signin:"Sign in", signout:"Sign out", note_mock:"Static demo: no real auth.",
-    platform_title:"Platform (Super Admin)", tenants:"Tenants",
-    admin_title:"Dashboard (Tenant Admin)", students:"Students", invoices:"Invoices Aug/2025", expenses:"Expenses Aug/2025", policies:"Billing Policies",
-    teacher_title:"Teacher (assigned classes)", attendance_aug:"Attendance Aug/2025 (summary)", health_trend:"Health (W/H/BMI)", learning_skills:"Learning & Skills (Aug/2025)",
-    parent_title:"Parent", my_children:"My Children", my_invoices:"Invoices Aug/2025", attendance_mini:"Attendance summary",
-    add_student_title:"Add new student", student_name:"Full name", student_class:"Class", student_gender:"Gender", student_dob:"Date of birth", add_student_btn:"Add student",
-    add_success:"New student added", guard_denied:"You are not authorized for this page. Redirecting to login…"
-  }
-};
-
-
 const fmt = (n)=>n.toLocaleString('vi-VN');
 const uid = ()=>'S'+Math.random().toString(36).slice(2,8).toUpperCase();
 
@@ -219,13 +196,6 @@ function updateQuery(kv){
   const p=new URLSearchParams(location.search);
   Object.entries(kv).forEach(([k,v])=>p.set(k,v));
   return '?'+p.toString();
-}
-function getLocale(){ return qs('locale') || localStorage.getItem('active_locale') || 'vi-VN'; }
-function translate(){
-  const loc = getLocale();
-  document.querySelectorAll('[data-i18n]').forEach(el=>{
-    const key = el.getAttribute('data-i18n'); el.textContent = STR[loc][key] || el.textContent;
-  });
 }
 
 const DATA = {
@@ -362,17 +332,6 @@ function showAccountInfo() {
       }
     }
   }, 200);
-    <tr>${schedule.map(s=>`<td>${s.subject}</td>`).join('')}</tr>
-  const localeSel = document.getElementById('locale');
-  if (localeSel) {
-    const loc = getLocale();
-    ['vi-VN','en-US'].forEach(l=>{
-      const o=document.createElement('option'); o.value=l; o.textContent=(l==='vi-VN'?'Tiếng Việt':'English');
-      if(l===loc) o.selected=true; localeSel.appendChild(o);
-    });
-    localeSel.onchange=()=>{ localStorage.setItem('active_locale', localeSel.value); location.search = updateQuery({locale:localeSel.value}); };
-  }
-  translate();
 
   // Đảm bảo nút đăng xuất trên tất cả các trang đều redirect về login.html
   setTimeout(()=>{
