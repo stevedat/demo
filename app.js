@@ -72,8 +72,13 @@ function saveCustomStudents(t, arr){ localStorage.setItem(lsKeyStudents(t), JSON
   }
   translate();
 
+  // Sign out always redirects to /login.html
   const signout = document.getElementById('signout');
-  if (signout) signout.onclick=()=>location.href='index.html';
+  if (signout) signout.onclick=()=>{
+    localStorage.removeItem('active_role');
+    localStorage.removeItem('active_tenant');
+    location.href='login.html';
+  };
 
   const tenantSel = document.getElementById('tenant');
   if (tenantSel) {
@@ -86,11 +91,31 @@ function saveCustomStudents(t, arr){ localStorage.setItem(lsKeyStudents(t), JSON
     tenantSel.onchange=()=>{ localStorage.setItem('active_tenant', tenantSel.value); location.search = updateQuery({tenant:tenantSel.value}); };
   }
 
+  // Guard: Only allow correct role for each page
   if (requiredRole){
     const role = qs('role') || localStorage.getItem('active_role');
-    if (role !== requiredRole){
+    // Map html role to code role
+    const roleMap = {
+      'tenant_admin': 'admin',
+      'super_admin': 'super-admin',
+      'teacher': 'teacher',
+      'parent': 'parent'
+    };
+    if (roleMap[role] !== page && !(page==='admin' && role==='super_admin')){
       toast(STR[getLocale()].guard_denied);
-      setTimeout(()=>location.href='index.html', 1200);
+      setTimeout(()=>location.href='login.html', 1200);
+      return;
+    }
+    // Restrict /admin/** to only admin/super-admin
+    if (page==='admin' && !(role==='tenant_admin'||role==='super_admin')){
+      toast(STR[getLocale()].guard_denied);
+      setTimeout(()=>location.href='login.html', 1200);
+      return;
+    }
+    // Restrict /super-admin to only super_admin
+    if (page==='super-admin' && role!=='super_admin'){
+      toast(STR[getLocale()].guard_denied);
+      setTimeout(()=>location.href='login.html', 1200);
       return;
     }
   }
@@ -116,7 +141,7 @@ function renderPlatform(){
 }
 
 function renderAdmin(){
-  const t = qs('tenant') || 'sunshine';
+  const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
   const tenant = DATA.tenants.find(x=>x.code===t);
   const pnl = tenant.revenue - tenant.expense;
   const kpis = document.getElementById('tenant-kpis');
@@ -127,9 +152,9 @@ function renderAdmin(){
     cardMini("P&L Aug", (pnl>=0?'+':'')+fmt(pnl)+"₫", pnl>=0?'ok':'bad')
   ].join('');
 
-  // Students list = base + custom
+  // Students list = base + custom, filtered by tenant_id
   const st = document.getElementById('students-table');
-  const custom = loadCustomStudents(t);
+  const custom = loadCustomStudents(t).filter(s=>s.tenant_id===t);
   const studs = (DATA.students[t]||[]).concat(custom);
   st.innerHTML = thead(['ID','Name','Class']) + studs.map(s=>tr([s.id, s.name, s.class])).join('');
 
@@ -162,7 +187,7 @@ function renderAdmin(){
     const newStu = { id, name, class: cls, gender, dob, tenant_id: t };
     const arr = loadCustomStudents(t); arr.push(newStu); saveCustomStudents(t, arr);
 
-    const studs2 = (DATA.students[t]||[]).concat(arr);
+    const studs2 = (DATA.students[t]||[]).concat(arr.filter(s=>s.tenant_id===t));
     document.getElementById('students-table').innerHTML = thead(['ID','Name','Class']) + studs2.map(s=>tr([s.id, s.name, s.class])).join('');
     toast(STR[getLocale()].add_success + `: ${newStu.id} – ${newStu.name}`);
   };
@@ -183,7 +208,8 @@ function renderTeacher(){
 }
 
 function renderParent(){
-  const t = qs('tenant') || 'sunshine';
+  const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
+  // Only show children belonging to this parent (simulate by localStorage or DATA.parentChildren)
   const kids = DATA.parentChildren[t] || [];
   const ct = document.getElementById('children-table');
   ct.innerHTML = thead(['ID','Name','Class']) + kids.map(r=>tr(r)).join('');

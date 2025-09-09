@@ -18,53 +18,16 @@
     </div>
   </header>
 
+
   <main class="container narrow">
-    <h1 data-i18n="login_title">Đăng nhập</h1>
-    <div class="card">
-      <label data-i18n="tenant">Trường (Tenant)</label>
-      <select id="tenant">
-        <option value="sunshine">Sunshine Kindergarten</option>
-        <option value="rainbow">Rainbow School</option>
-      </select>
-
-      <label data-i18n="role">Vai trò</label>
-      <select id="role">
-        <option value="super_admin">Super Admin</option>
-        <option value="tenant_admin">Tenant Admin</option>
-        <option value="teacher">Teacher</option>
-        <option value="parent">Parent</option>
-      </select>
-
-      <label data-i18n="email">Email</label>
-      <input id="email" placeholder="demo@example.com">
-
-      <label data-i18n="password">Mật khẩu</label>
-      <input id="password" type="password" placeholder="••••••••">
-
-      <button id="signin" class="primary" data-i18n="signin">Đăng nhập</button>
-      <p class="muted" data-i18n="note_mock">Demo tĩnh: không kiểm tra tài khoản thật.</p>
-    </div>
+    <script>
+      // Redirect to unified login page
+      window.location.replace('login.html');
+    </script>
+    <p>Redirecting to login...</p>
   </main>
 
   <footer class="footer">&copy; 2025 Kindy Demo</footer>
 
-  <script>
-    document.getElementById('signin').onclick = () => {
-      const t = document.getElementById('tenant').value;
-      const r = document.getElementById('role').value;
-      const loc = document.getElementById('locale').value;
-      localStorage.setItem('active_locale', loc);
-      localStorage.setItem('active_tenant', t);
-      localStorage.setItem('active_role', r);
-      const route = {
-        super_admin: 'super-admin.html',
-        tenant_admin: 'admin.html',
-        teacher: 'teacher.html',
-        parent: 'parent.html'
-      }[r];
-      const qs = `?tenant=${encodeURIComponent(t)}&role=${encodeURIComponent(r)}&locale=${encodeURIComponent(loc)}`;
-      window.location.href = route + qs;
-    };
-  </script>
 </body>
 </html>
