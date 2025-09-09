@@ -250,22 +250,53 @@ function renderPlatform(){
 }
 
 function renderAdmin(){
-  const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
   const tenant = DATA.tenants.find(x=>x.code===t);
-  const pnl = tenant.revenue - tenant.expense;
+  // Bổ sung dữ liệu demo nếu thiếu
+  if (!DATA.classes[t]) DATA.classes[t] = [
+    {code:t+"A",name:"Lớp A",block:"kindergarten",teacher:{id:"T1",name:"GV 1",email:"teacher1."+t+"@example.com"}},
+    {code:t+"B",name:"Lớp B",block:"preparatory",teacher:{id:"T2",name:"GV 2",email:"teacher2."+t+"@example.com"}}
+  ];
+  if (!DATA.students[t]) DATA.students[t] = [];
+  if (!DATA.invoicesAug[t]) DATA.invoicesAug[t] = [];
+  if (!DATA.expensesAug[t]) DATA.expensesAug[t] = [];
+  // Tổng số lớp, tổng số học sinh, tổng học sinh theo lớp
+  const classes = DATA.classes[t];
+  const students = (DATA.students[t]||[]).concat(loadCustomStudents(t).filter(s=>s.tenant_id===t));
+  const totalClasses = classes.length;
+  const totalStudents = students.length;
+  const studentsByClass = classes.map(c=>({class:c.code, count:students.filter(s=>s.class===c.code).length}));
+  // Tổng thu học phí toàn trường, theo lớp, còn chưa thu
+  const invoices = DATA.invoicesAug[t]||[];
+  const totalFee = invoices.reduce((a,b)=>a+(b[3]||0),0);
+  const feeByClass = classes.map(c=>({class:c.code, sum:invoices.filter(i=>i[2]===c.code).reduce((a,b)=>a+(b[3]||0),0)}));
+  const unpaid = invoices.filter(i=>i[3]%2!==0).reduce((a,b)=>a+(b[3]||0),0);
+  // Tổng chi tháng, chi giáo viên, chi các môn học
+  const expenses = DATA.expensesAug[t]||[];
+  const totalExpense = expenses.reduce((a,b)=>a+(b[2]||0),0);
+  const teacherExpense = expenses.filter(e=>e[0]==='StaffCost').reduce((a,b)=>a+(b[2]||0),0);
+  const subjectExpense = expenses.filter(e=>e[0]==='TeachingMaterial'||e[0]==='Language'||e[0]==='Talent').reduce((a,b)=>a+(b[2]||0),0);
+  // Tổng chi phí thức ăn, giáo cụ & học liệu
+  const foodExpense = expenses.filter(e=>e[0]==='Food').reduce((a,b)=>a+(b[2]||0),0);
+  const supplyExpense = expenses.filter(e=>e[0]==='TeachingMaterial').reduce((a,b)=>a+(b[2]||0),0);
+  // Lịch hoạt động sắp tới (demo)
+  const events = [
+    {date:'2025-09-15',title:'Khai giảng năm học mới',scope:'Trường'},
+    {date:'2025-09-20',title:'Tham quan bảo tàng',scope:'Lớp '+classes[0].code},
+    {date:'2025-09-25',title:'Ngày hội thể thao',scope:'Trường'}
+  ];
+  // Card view
   const kpis = document.getElementById('tenant-kpis');
   kpis.innerHTML = [
-    cardMini("Students", tenant.students),
-    cardMini("Revenue Aug", fmt(tenant.revenue)+"₫"),
-    cardMini("Expense Aug", fmt(tenant.expense)+"₫"),
-    cardMini("P&L Aug", (pnl>=0?'+':'')+fmt(pnl)+"₫", pnl>=0?'ok':'bad')
+    `<div class="card"><b>Tổng số lớp:</b> ${totalClasses}<br><b>Tổng số học sinh:</b> ${totalStudents}<br>${studentsByClass.map(s=>`<div>Lớp ${s.class}: <b>${s.count}</b></div>`).join('')}</div>`,
+    `<div class="card"><b>Tổng thu học phí:</b> ${fmt(totalFee)}₫<br>${feeByClass.map(f=>`<div>Lớp ${f.class}: <b>${fmt(f.sum)}₫</b></div>`).join('')}<br><b>Học phí chưa thu:</b> ${fmt(unpaid)}₫</div>`,
+    `<div class="card"><b>Tổng chi tháng:</b> ${fmt(totalExpense)}₫<br><b>Chi giáo viên:</b> ${fmt(teacherExpense)}₫<br><b>Chi các môn học:</b> ${fmt(subjectExpense)}₫</div>`,
+    `<div class="card"><b>Chi phí thức ăn:</b> ${fmt(foodExpense)}₫<br><b>Chi giáo cụ & học liệu:</b> ${fmt(supplyExpense)}₫</div>`,
+    `<div class="card"><b>Lịch hoạt động sắp tới</b><ul>${events.map(e=>`<li>${e.date}: ${e.title} (${e.scope})</li>`).join('')}</ul></div>`
   ].join('');
 
   // Students list = base + custom, filtered by tenant_id
   const st = document.getElementById('students-table');
-  const custom = loadCustomStudents(t).filter(s=>s.tenant_id===t);
-  const studs = (DATA.students[t]||[]).concat(custom);
-  st.innerHTML = thead(['ID','Name','Class']) + studs.map(s=>tr([s.id, s.name, s.class])).join('');
+  st.innerHTML = thead(['ID','Name','Class']) + students.map(s=>tr([s.id, s.name, s.class])).join('');
 
   // Invoices
   const inv = document.getElementById('invoices-table');
@@ -343,30 +374,6 @@ function renderTeacher(){
 }
 
 function renderParent(){
-  // === Card: Tổng quan trường ===
-  const allClasses = DATA.classes[t]||[];
-  const allStudents = DATA.students[t]||[];
-  const classCounts = allClasses.map(c=>({code:c.code, name:c.name, count:allStudents.filter(s=>s.class===c.code).length}));
-  // === Card: Thu-Chi ===
-  const allInvoices = DATA.invoicesAug[t]||[];
-  const totalFee = allInvoices.reduce((a,b)=>a+b[3],0);
-  const feeByClass = allClasses.map(c=>({code:c.code, name:c.name, total:allInvoices.filter(i=>i[2]===c.code).reduce((a,b)=>a+b[3],0)}));
-  const unpaid = allInvoices.filter(i=>i[3]%2!==0).reduce((a,b)=>a+b[3],0);
-  // === Card: Chi tháng ===
-  const allExp = DATA.expensesAug[t]||[];
-  const totalExp = allExp.reduce((a,b)=>a+b[2],0);
-  const teacherExp = allExp.find(e=>e[0]==='StaffCost')?.[2]||0;
-  const subjectExp = allExp.filter(e=>e[0]==='TeachingMaterial'||e[0]==='Language'||e[0]==='Talent').reduce((a,b)=>a+b[2],0);
-  // === Card: Chi phí thức ăn, giáo cụ ===
-  const foodExp = allExp.find(e=>e[0]==='Food')?.[2]||0;
-  const materialExp = allExp.find(e=>e[0]==='TeachingMaterial')?.[2]||0;
-  // === Card: Lịch hoạt động ===
-  const events = [
-    {date:'2025-09-15', title:'Vui hội trăng rằm', scope:'school'},
-    {date:'2025-09-20', title:'Tham quan bảo tàng', scope:'class', class:'KGA'},
-    {date:'2025-09-22', title:'Ngày hội thể thao', scope:'school'},
-    {date:'2025-09-25', title:'Lớp Rainbow A: Vẽ tranh', scope:'class', class:'R1'}
-  ];
   const t = qs('tenant') || localStorage.getItem('active_tenant') || 'sunshine';
   const parentEmail = localStorage.getItem('active_email') || '';
   // Find student for this parent
@@ -406,33 +413,6 @@ function renderParent(){
   // Học phí tháng hiện tại
   const invoice = (DATA.invoicesAug[t]||[]).find(r=>r[0]===myChild.id);
   dash.innerHTML = `
-    <div class="card" style="margin-bottom:16px">
-      <div style="font-weight:600">Tổng quan trường</div>
-      <div>Tổng số lớp: <b>${allClasses.length}</b> | Tổng học sinh: <b>${allStudents.length}</b></div>
-      <div>Học sinh theo lớp: ${classCounts.map(c=>`${c.name}: <b>${c.count}</b>`).join(' | ')}</div>
-    </div>
-    <div class="card" style="margin-bottom:16px">
-      <div style="font-weight:600">Thu - Chi</div>
-      <div>Tổng thu học phí: <b>${fmt(totalFee)}₫</b></div>
-      <div>Thu theo lớp: ${feeByClass.map(c=>`${c.name}: <b>${fmt(c.total)}₫</b>`).join(' | ')}</div>
-      <div>Học phí còn chưa thu: <b>${fmt(unpaid)}₫</b></div>
-    </div>
-    <div class="card" style="margin-bottom:16px">
-      <div style="font-weight:600">Chi tháng 8/2025</div>
-      <div>Tổng chi: <b>${fmt(totalExp)}₫</b></div>
-      <div>Chi giáo viên: <b>${fmt(teacherExp)}₫</b></div>
-      <div>Chi các môn học: <b>${fmt(subjectExp)}₫</b></div>
-    </div>
-    <div class="card" style="margin-bottom:16px">
-      <div style="font-weight:600">Chi phí thức ăn & giáo cụ</div>
-      <div>Thức ăn: <b>${fmt(foodExp)}₫</b> | Giáo cụ & học liệu: <b>${fmt(materialExp)}₫</b></div>
-    </div>
-    <div class="card" style="margin-bottom:16px">
-      <div style="font-weight:600">Lịch hoạt động sắp tới</div>
-      <ul style="margin:8px 0 0 16px;padding:0">
-        ${events.filter(e=>e.scope==='school'||e.class===myChild.class).map(e=>`<li>${e.date}: ${e.title}${e.scope==='class'?` (${e.class})`:''}</li>`).join('')}
-      </ul>
-    </div>
     <div class="card" style="margin-bottom:16px">
       <div style="font-size:20px;font-weight:700">${myChild.name}</div>
       <div>Lớp: <b>${myChild.class}</b> | Tuổi: <b>${age}</b></div>
