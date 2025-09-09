@@ -414,7 +414,27 @@ function showAccountInfo() {
     }
   }
 
-  if (page==='super-admin') renderPlatform();
+  if (page==='super-admin') {
+    // Super admin dashboard: tổng quan từng tenant
+    const kpis = document.getElementById('platform-kpis');
+    kpis.innerHTML = DATA.tenants.map(t => {
+      const classes = DATA.classes[t.code]||[];
+      const students = DATA.students[t.code]||[];
+      const teachers = classes.map(c=>c.teacher).filter(Boolean);
+      const studentsByClass = classes.map(c=>`<div>Lớp ${c.code}: <b>${students.filter(s=>s.class===c.code).length}</b></div>`).join('');
+      const invoices = DATA.invoicesAug[t.code]||[];
+      const totalFee = invoices.reduce((sum, r) => sum + (r[3] || 0), 0);
+      return `<div class="card"><b>${t.name}</b><br>
+        <span style='color:#888'>Mã: ${t.code}</span><br>
+        Tổng số lớp: <b>${classes.length}</b><br>
+        Tổng số học sinh: <b>${students.length}</b><br>
+        ${studentsByClass}
+        Tổng số giáo viên: <b>${teachers.length}</b><br>
+        <b>Tổng thu học phí:</b> <span style='color:#1976d2'>${totalFee.toLocaleString('vi-VN')}₫</span><br>
+        <b>Trạng thái:</b> <span class="badge ${t.state==='active'?'ok':t.state==='pending'?'warn':'bad'}">${t.state.toUpperCase()}</span>
+      </div>`;
+    }).join('');
+  }
   if (page==='admin') renderAdmin();
   if (page==='teacher') renderTeacher();
   if (page==='parent') renderParent();
