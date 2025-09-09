@@ -364,7 +364,14 @@ function renderTeacher(){
     {time:'16:00', activity:'Trả trẻ'}
   ];
   // Card 4: điểm danh
+  // Giả lập: bé có "Absent" là nghỉ, còn lại là đi học
   const attData = (DATA.attendanceSummaryAug||[]).filter(r=>r[1]===myClass.code);
+  let present = 0, absent = 0;
+  students.forEach(s => {
+    const att = attData.find(a=>a[0]===s.id);
+    if(att && att[2].includes('Absent')) absent++;
+    else present++;
+  });
   // Card 5: nhận xét & ghi chú từ admin
   const notes = [
     {date:'2025-08-01',note:'Lưu ý: kiểm tra sức khoẻ các bé đầu tháng.'},
@@ -392,13 +399,7 @@ function renderTeacher(){
     <div class="card" style="margin-bottom:16px">
       <b>Điểm danh hôm nay (${new Date().toLocaleDateString('vi-VN')})</b><br>
       <div style="margin:8px 0">
-        ${(() => {
-          // Giả lập: 80% đi học, 20% nghỉ
-          const total = students.length;
-          const present = Math.round(total*0.8);
-          const absent = total - present;
-          return `<b>Đi học:</b> ${present} bé &nbsp; <b>Nghỉ:</b> ${absent} bé`;
-        })()}
+        <b>Đi học:</b> ${present} bé &nbsp; <b>Nghỉ:</b> ${absent} bé
       </div>
       <button class="primary" style="margin-right:8px" onclick="alert('Cập nhật điểm danh thành công!')">Cập nhật điểm danh</button>
       <button class="primary" onclick="alert('Cập nhật sức khoẻ thành công!')">Cập nhật Sức khoẻ</button>
