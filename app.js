@@ -387,6 +387,8 @@ function showAccountInfo() {
   if (signout) signout.onclick=()=>{
     localStorage.removeItem('active_role');
     localStorage.removeItem('active_tenant');
+    localStorage.removeItem('active_email');
+    localStorage.removeItem('active_locale');
     location.href='login.html';
   };
 
