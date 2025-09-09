@@ -33,9 +33,15 @@
       const t = document.getElementById('tenant').value;
       const r = document.getElementById('role').value;
       const loc = document.getElementById('locale').value || 'vi-VN';
+      const email = document.getElementById('email').value;
       localStorage.setItem('active_locale', loc);
       localStorage.setItem('active_tenant', t);
       localStorage.setItem('active_role', r);
+      if (r === 'parent') {
+        localStorage.setItem('active_email', email);
+      } else {
+        localStorage.removeItem('active_email');
+      }
       const route = {
         super_admin: 'super-admin.html',
         tenant_admin: 'admin.html',
